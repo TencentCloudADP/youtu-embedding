@@ -1,0 +1,73 @@
+{
+  "dataset_revision": "317f262bf1e6126357bbe89e875451e4b0938fe4",
+  "task_name": "TNews",
+  "mteb_version": "1.38.30",
+  "scores": {
+    "validation": [
+      {
+        "accuracy": 0.60052,
+        "f1": 0.586534,
+        "f1_weighted": 0.600753,
+        "scores_per_experiment": [
+          {
+            "accuracy": 0.5996,
+            "f1": 0.584632,
+            "f1_weighted": 0.599676
+          },
+          {
+            "accuracy": 0.6003,
+            "f1": 0.586883,
+            "f1_weighted": 0.600252
+          },
+          {
+            "accuracy": 0.6015,
+            "f1": 0.58828,
+            "f1_weighted": 0.601894
+          },
+          {
+            "accuracy": 0.6018,
+            "f1": 0.589,
+            "f1_weighted": 0.602318
+          },
+          {
+            "accuracy": 0.5991,
+            "f1": 0.583824,
+            "f1_weighted": 0.598868
+          },
+          {
+            "accuracy": 0.6024,
+            "f1": 0.589866,
+            "f1_weighted": 0.602379
+          },
+          {
+            "accuracy": 0.6,
+            "f1": 0.585523,
+            "f1_weighted": 0.60061
+          },
+          {
+            "accuracy": 0.6011,
+            "f1": 0.588753,
+            "f1_weighted": 0.601241
+          },
+          {
+            "accuracy": 0.5984,
+            "f1": 0.582971,
+            "f1_weighted": 0.599067
+          },
+          {
+            "accuracy": 0.601,
+            "f1": 0.585611,
+            "f1_weighted": 0.601224
+          }
+        ],
+        "main_score": 0.60052,
+        "hf_subset": "default",
+        "languages": [
+          "cmn-Hans"
+        ]
+      }
+    ]
+  },
+  "evaluation_time": 83.39222979545593,
+  "kg_co2_emissions": null
+}

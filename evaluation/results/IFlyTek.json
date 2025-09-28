@@ -1,0 +1,48 @@
+{
+  "dataset_revision": "421605374b29664c5fc098418fe20ada9bd55f8a",
+  "task_name": "IFlyTek",
+  "mteb_version": "1.38.30",
+  "scores": {
+    "validation": [
+      {
+        "accuracy": 0.597307,
+        "f1": 0.435288,
+        "f1_weighted": 0.600789,
+        "scores_per_experiment": [
+          {
+            "accuracy": 0.596768,
+            "f1": 0.436236,
+            "f1_weighted": 0.600195
+          },
+          {
+            "accuracy": 0.600231,
+            "f1": 0.434711,
+            "f1_weighted": 0.60312
+          },
+          {
+            "accuracy": 0.594844,
+            "f1": 0.432866,
+            "f1_weighted": 0.599328
+          },
+          {
+            "accuracy": 0.597922,
+            "f1": 0.435296,
+            "f1_weighted": 0.601947
+          },
+          {
+            "accuracy": 0.596768,
+            "f1": 0.437332,
+            "f1_weighted": 0.599354
+          }
+        ],
+        "main_score": 0.597307,
+        "hf_subset": "default",
+        "languages": [
+          "cmn-Hans"
+        ]
+      }
+    ]
+  },
+  "evaluation_time": 661.3727290630341,
+  "kg_co2_emissions": null
+}

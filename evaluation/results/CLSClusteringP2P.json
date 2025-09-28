@@ -1,0 +1,32 @@
+{
+  "dataset_revision": "4b6227591c6c1a73bc76b1055f3b7f3588e72476",
+  "task_name": "CLSClusteringP2P",
+  "mteb_version": "1.38.30",
+  "scores": {
+    "test": [
+      {
+        "v_measure": 0.815311,
+        "v_measure_std": 0.027662,
+        "v_measures": [
+          0.804815,
+          0.872865,
+          0.814021,
+          0.829766,
+          0.84843,
+          0.791818,
+          0.808065,
+          0.777552,
+          0.81997,
+          0.785813
+        ],
+        "main_score": 0.815311,
+        "hf_subset": "default",
+        "languages": [
+          "cmn-Hans"
+        ]
+      }
+    ]
+  },
+  "evaluation_time": 2388.292834997177,
+  "kg_co2_emissions": null
+}
