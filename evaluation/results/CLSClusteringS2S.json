@@ -1,0 +1,32 @@
+{
+  "dataset_revision": "e458b3f5414b62b7f9f83499ac1f5497ae2e869f",
+  "task_name": "CLSClusteringS2S",
+  "mteb_version": "1.38.30",
+  "scores": {
+    "test": [
+      {
+        "v_measure": 0.762722,
+        "v_measure_std": 0.026018,
+        "v_measures": [
+          0.735073,
+          0.801598,
+          0.776533,
+          0.791576,
+          0.767064,
+          0.761668,
+          0.753993,
+          0.770871,
+          0.76363,
+          0.705216
+        ],
+        "main_score": 0.762722,
+        "hf_subset": "default",
+        "languages": [
+          "cmn-Hans"
+        ]
+      }
+    ]
+  },
+  "evaluation_time": 448.83500051498413,
+  "kg_co2_emissions": null
+}

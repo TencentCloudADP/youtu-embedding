@@ -1,0 +1,26 @@
+{
+  "dataset_revision": "76631901a18387f85eaa53e5450019b87ad58ef9",
+  "task_name": "T2Reranking",
+  "mteb_version": "1.38.30",
+  "scores": {
+    "dev": [
+      {
+        "map": 0.731538,
+        "mrr": 0.838983,
+        "nAUC_map_max": 0.200795,
+        "nAUC_map_std": -0.016705,
+        "nAUC_map_diff1": -0.028193,
+        "nAUC_mrr_max": 0.201976,
+        "nAUC_mrr_std": -0.037462,
+        "nAUC_mrr_diff1": -0.018514,
+        "main_score": 0.731538,
+        "hf_subset": "default",
+        "languages": [
+          "cmn-Hans"
+        ]
+      }
+    ]
+  },
+  "evaluation_time": 5090.760587692261,
+  "kg_co2_emissions": null
+}

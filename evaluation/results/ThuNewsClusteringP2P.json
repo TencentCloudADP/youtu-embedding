@@ -1,0 +1,32 @@
+{
+  "dataset_revision": "5798586b105c0434e4f0fe5e767abe619442cf93",
+  "task_name": "ThuNewsClusteringP2P",
+  "mteb_version": "1.38.30",
+  "scores": {
+    "test": [
+      {
+        "v_measure": 0.897257,
+        "v_measure_std": 0.026429,
+        "v_measures": [
+          0.906127,
+          0.881226,
+          0.892458,
+          0.918832,
+          0.900083,
+          0.863941,
+          0.936267,
+          0.844781,
+          0.904992,
+          0.923859
+        ],
+        "main_score": 0.897257,
+        "hf_subset": "default",
+        "languages": [
+          "cmn-Hans"
+        ]
+      }
+    ]
+  },
+  "evaluation_time": 1408.1993434429169,
+  "kg_co2_emissions": null
+}
