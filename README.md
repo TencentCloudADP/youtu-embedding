@@ -30,7 +30,7 @@ The core advantages of Youtu-Embedding can be summarized as follows:
 
   - **🛠️ Meticulous Data Engineering**: We combined high-quality, LLM-based data synthesis with efficient hard negative mining strategies to provide the most robust data foundation for model training.
 
-
+We are open-sourcing the model weights, inference code, and the training framework. We hope this will help developers in the community create greater value.
 
 <!-- ## 🗞️ News 🔥
 - [2025-09-xx] We release our latest 2B-scale embedding model [Youtu-Embedding-V1](https://huggingface.co/Youtu-RAG)  ! -->

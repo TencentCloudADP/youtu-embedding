@@ -4,7 +4,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Paper](https://img.shields.io/badge/Paper-Latest-blue.svg)](https://arxiv.org/abs/2508.11442)
-[![GitHub](https://img.shields.io/badge/GitHub-Tencent-blue.svg)](https://git.woa.com/cowenzhang/Youtu-Embedding)
+[![GitHub](https://img.shields.io/badge/GitHub-Tencent-blue.svg)](https://github.com/TencentCloudADP/youtu-embedding)
 [![Huggingface](https://img.shields.io/badge/Huggingface-YoutuRAG-blue)](https://huggingface.co/Youtu-RAG)
 [![WeChat Community](https://img.shields.io/badge/Community-WeChat-32CD32)](assets/wechat_qr.png)
 [![Discord Community](https://img.shields.io/badge/Community-Discord-8A2BE2)](https://discord.gg/QjqhkHQVVM)
@@ -188,7 +188,7 @@ bash train_youtuemb.sh
 | QZhou-Embedding         | 7B | 76.99              | 78.58              | 79.99  | 70.91  | 95.07       | 74.85   | 78.80  | 71.89 |
 | **Youtu-Embedding-V1** | 2B | **77.60** | **78.85** | 78.04 | 79.67 | 89.69 | 73.85 | 80.95 | 70.91 |
 
-> **Note**: Comparative scores are from the MTEB [leaderboard](https://huggingface.co/spaces/mteb/leaderboard), recorded on September 28, 2025.
+> **注意**: 各模型分数来自2025年9月28日记录的MTEB[榜单](https://huggingface.co/spaces/mteb/leaderboard)
 
 
 ## 🎉 引用
