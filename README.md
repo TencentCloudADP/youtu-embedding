@@ -167,7 +167,7 @@ bash train_youtuemb.sh
 ```
 
 #### 3\. Evaluation
-The code for reproducing the following results is available in `evaluation/`.
+The code for reproducing the following results is available in [`evaluation/`](evaluation/).
 
 
 ## 📊 CMTEB
