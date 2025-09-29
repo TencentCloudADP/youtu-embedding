@@ -185,7 +185,7 @@ Youtu-Embedding demonstrates superior performance across all seven task categori
 | QZhou-Embedding         | 7B | 76.99              | 78.58              | 79.99  | 70.91  | 95.07       | 74.85   | 78.80  | 71.89 |
 | **Youtu-Embedding-V1** | 2B | **77.60** | **78.85** | 78.04 | 79.67 | 89.69 | 73.85 | 80.95 | 70.91 |
 
-> **Note**: Comparative scores are based on the MTEB [leaderboard](https://huggingface.co/spaces/mteb/leaderboard) for the Chinese language-specific direction, recorded on September 28, 2025.
+> **Note**: Comparative scores are based from the MTEB [leaderboard](https://huggingface.co/spaces/mteb/leaderboard), recorded on September 28, 2025.
 
 ## 🤝 Contributing
 
