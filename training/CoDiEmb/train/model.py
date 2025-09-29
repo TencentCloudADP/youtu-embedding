@@ -44,6 +44,7 @@ class TrainModel(torch.nn.Module):
             self.model = base_model.model
         else:
             self.model = AutoModel.from_pretrained(model_name_or_path, trust_remote_code=True, output_hidden_states=True, **kwargs)
+        
         print(f"Created TrainLM: {self.model.dtype} dtype, {pooling_method} pool, {attn} attn")
 
         self.projection = torch.nn.Linear(

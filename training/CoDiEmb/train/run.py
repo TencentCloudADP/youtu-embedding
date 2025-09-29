@@ -218,6 +218,7 @@ def load_train_data(data_args, training_args):
 
     with open(os.path.join(training_args.output_dir, "dataset_num_samples.json"), "w") as f:
         json.dump(ds_name_to_samples, f)
+    
     os.system("pkill -9 -f spawn")
     return ds, ds_types, ds_embedding_lens
 
