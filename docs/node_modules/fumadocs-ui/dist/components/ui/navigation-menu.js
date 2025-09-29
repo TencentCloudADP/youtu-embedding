@@ -1,0 +1,17 @@
+'use client';
+import { jsx as _jsx } from "react/jsx-runtime";
+import * as React from 'react';
+import * as Primitive from '@radix-ui/react-navigation-menu';
+import { cn } from '../../utils/cn.js';
+const NavigationMenu = Primitive.Root;
+const NavigationMenuList = Primitive.List;
+const NavigationMenuItem = React.forwardRef(({ className, children, ...props }, ref) => (_jsx(Primitive.NavigationMenuItem, { ref: ref, className: cn('list-none', className), ...props, children: children })));
+NavigationMenuItem.displayName = Primitive.NavigationMenuItem.displayName;
+const NavigationMenuTrigger = React.forwardRef(({ className, children, ...props }, ref) => (_jsx(Primitive.Trigger, { ref: ref, className: cn('data-[state=open]:bg-fd-accent/50', className), ...props, children: children })));
+NavigationMenuTrigger.displayName = Primitive.Trigger.displayName;
+const NavigationMenuContent = React.forwardRef(({ className, ...props }, ref) => (_jsx(Primitive.Content, { ref: ref, className: cn('absolute inset-x-0 top-0 overflow-auto fd-scroll-container max-h-[80svh] data-[motion=from-end]:animate-fd-enterFromRight data-[motion=from-start]:animate-fd-enterFromLeft data-[motion=to-end]:animate-fd-exitToRight data-[motion=to-start]:animate-fd-exitToLeft', className), ...props })));
+NavigationMenuContent.displayName = Primitive.Content.displayName;
+const NavigationMenuLink = Primitive.Link;
+const NavigationMenuViewport = React.forwardRef(({ className, ...props }, ref) => (_jsx("div", { ref: ref, className: "flex w-full justify-center", children: _jsx(Primitive.Viewport, { ...props, className: cn('relative h-(--radix-navigation-menu-viewport-height) w-full origin-[top_center] overflow-hidden transition-[width,height] duration-300 data-[state=closed]:animate-fd-nav-menu-out data-[state=open]:animate-fd-nav-menu-in', className) }) })));
+NavigationMenuViewport.displayName = Primitive.Viewport.displayName;
+export { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuContent, NavigationMenuTrigger, NavigationMenuLink, NavigationMenuViewport, };

@@ -7,7 +7,7 @@
 [![GitHub](https://img.shields.io/badge/GitHub-Tencent-blue.svg)](https://github.com/TencentCloudADP/youtu-embedding)
 [![Huggingface](https://img.shields.io/badge/Huggingface-YoutuRAG-blue)](https://huggingface.co/tencent/Youtu-Embedding)
 [![WeChat Community](https://img.shields.io/badge/Community-WeChat-32CD32)](assets/wechat_qr.png)
-[![Discord Community](https://img.shields.io/badge/Community-Discord-8A2BE2)](https://discord.gg/QjqhkHQVVM)
+[![Discord Community](https://img.shields.io/badge/Community-Discord-8A2BE2)](https://discord.gg/dwHuBUKkxw)
 
 
 [🔖 中文版](README-CN.md) • [🤗 Model Download](#download) • [🚀 Quickly Start Inference](#quickstart) • [🛠️ How to Train](#train)
@@ -185,8 +185,19 @@ Youtu-Embedding demonstrates superior performance across all seven task categori
 | QZhou-Embedding         | 7B | 76.99              | 78.58              | 79.99  | 70.91  | 95.07       | 74.85   | 78.80  | 71.89 |
 | **Youtu-Embedding-V1** | 2B | **77.60** | **78.85** | 78.04 | 79.67 | 89.69 | 73.85 | 80.95 | 70.91 |
 
-> **Note**: Comparative scores are from the MTEB [leaderboard](https://huggingface.co/spaces/mteb/leaderboard), recorded on September 28, 2025.
+> **Note**: Comparative scores are based on the MTEB [leaderboard](https://huggingface.co/spaces/mteb/leaderboard) for the Chinese language-specific direction, recorded on September 28, 2025.
 
+## 🤝 Contributing
+
+We welcome contributions from the community! Here's how you can help:
+
+### 💻 Code Contribution
+
+1. 🍴 Fork the project
+2. 🌿 Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. 💾 Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. 📤 Push to the branch (`git push origin feature/AmazingFeature`)
+5. 🔄 Create a Pull Request
 
 ## 🎉 Citation
 
@@ -202,4 +213,10 @@ If you find our work useful in your research, please consider citing our paper:
   url={https://arxiv.org/abs/2508.11442},
 }
 ```
+
+---
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=TencentCloudADP/youtu-embedding&type=Date)](https://www.star-history.com/#TencentCloudADP/youtu-embedding&Date)
 

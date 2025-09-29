@@ -1,0 +1,1 @@
+{"version":3,"file":"is-active.d.ts","sourceRoot":"","sources":["../../src/utils/is-active.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,UAAU,EAAE,MAAM,0BAA0B,CAAC;AAO3D,wBAAgB,QAAQ,CACtB,GAAG,EAAE,MAAM,EACX,QAAQ,EAAE,MAAM,EAChB,MAAM,UAAO,GACZ,OAAO,CAKT;AAED,wBAAgB,WAAW,CAAC,GAAG,EAAE,UAAU,EAAE,QAAQ,EAAE,MAAM,WAI5D"}
