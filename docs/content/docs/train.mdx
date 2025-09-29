@@ -1,0 +1,51 @@
+---
+title: Train Model
+description: Train your own embedding models with our Collaborative-Discriminative Fine-tuning Framework.
+---
+
+## 💡 Fine-tuning Framework
+
+We provide our novel **Collaborative-Discriminative Fine-tuning Framework**, designed to overcome the challenges of jointly optimizing different text embedding tasks. By systematically decoupling tasks, we introduce several key innovations to achieve highly efficient unified representation learning.
+
+**🌐 1. Unified & Extensible Data Format**
+
+Our unified data structure seamlessly handles heterogeneous data from IR, STS, classification, and reranking tasks, offering excellent extensibility for incorporating new tasks in the future.
+
+**🎯 2. Task-Differentiated Loss Functions**
+
+We moved beyond a "one-size-fits-all" loss function and designed specialized optimization objectives for different tasks.
+
+- **For IR (Information Retrieval) tasks**: We use a powerful InfoNCE contrastive loss that supports multiple positives, hard negatives, and in-batch cross-device negative sampling for superior discriminative ability.
+
+- **For STS (Semantic Textual Similarity) tasks**: We go beyond simple contrastive learning by adopting ranking-aware objectives (e.g., Pearson loss, KL divergence loss L_RankKL) to directly optimize for ranking consistency.
+
+**🔄 3. Dynamic Single-Task Sampling**
+
+To prevent gradient interference from mixed-task batches, we implemented a custom dynamic sampler. It ensures that within a single training iteration, all GPUs process non-overlapping shards of the same dataset, providing the model with a pure and stable gradient signal.
+
+
+<a id="train"></a>
+
+### 🛠️ How to Train
+
+The code for our training framework is located in the [`training/`](training/) directory. 
+
+#### 1. Installation
+
+Clone the repository and install the required dependencies:
+
+```bash
+git clone https://github.com/Tencent/CoDiEmb.git
+cd CoDiEmb
+pip install -r requirements.txt
+```
+
+#### 2. Training
+
+```bash
+cd scripts
+bash train_youtuemb.sh
+```
+
+#### 3. Evaluation
+The code for reproducing the following results is available in `evaluation/`.
