@@ -7,7 +7,7 @@
 [![GitHub](https://img.shields.io/badge/GitHub-Tencent-blue.svg)](https://github.com/TencentCloudADP/youtu-embedding)
 [![Huggingface](https://img.shields.io/badge/Huggingface-YoutuRAG-blue)](https://huggingface.co/tencent/Youtu-Embedding)
 [![WeChat Community](https://img.shields.io/badge/Community-WeChat-32CD32)](assets/wechat_qr.png)
-[![Discord Community](https://img.shields.io/badge/Community-Discord-8A2BE2)](https://discord.gg/QjqhkHQVVM)
+[![Discord Community](https://img.shields.io/badge/Community-Discord-8A2BE2)](https://discord.gg/dwHuBUKkxw)
 
 
 [🔖 English Version](README.md) • [🤗 模型下载](#download) • [🚀 快速开始推理](#quickstart) • [🛠️ 如何训练](#train)
