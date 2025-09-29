@@ -1,0 +1,30 @@
+name: Deploy Static HTML to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main  # 或者你想部署的分支
+    paths:
+      - "docs/**"  # 只监视 docs 文件夹的变化
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Step 2: Copy files to deploy folder
+      - name: Copy docs to deploy folder
+        run: |
+          mkdir -p docs-out
+          cp -r docs/* docs-out/
+          touch docs-out/.nojekyll  # 添加 .nojekyll 文件
+
+      # Step 3: Deploy to GitHub Pages
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs-out
