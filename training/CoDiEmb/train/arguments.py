@@ -52,7 +52,7 @@ class ModelArguments:
     )
     multi_layer_loss: bool = field(
         default=False,
-        metadata={"help": "倘若开启，则倒数第二层应用 infonce loss，最后一层应用 list-wise loss"}
+        metadata={"help": "If enabled, apply InfoNCE loss on the second-to-last layer and list-wise loss on the last layer"}
     )
 
 
@@ -146,13 +146,13 @@ class CustomTrainingArguments(TrainingArguments):
     ir_per_device_batch_size: int = field(
         default=32,
         metadata={
-            "help": "IR 任务中，每台 GPU 处理的 batch size。由于 IR 任务文本较长，通常使用较小的 batch size。"
+            "help": "Batch size per GPU for IR tasks. "
         },
     )
     sts_per_device_batch_size: int = field(
         default=64,
         metadata={
-            "help": "STS 任务中，每台 GPU 处理的 batch size。由于 STS 任务文本较短，通常使用较长的 batch size。"
+            "help": "Batch size per GPU for STS tasks. "
         },
     )
     temperature: Optional[float] = field(

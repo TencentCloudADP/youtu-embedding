@@ -1,8 +1,6 @@
 import math
 import random
 import logging
-import numpy as np
-
 import datasets
 from dataclasses import dataclass
 from typing import List, Union, Dict
@@ -16,7 +14,6 @@ logger = logging.getLogger(__name__)
 
 
 class CustomDataset(torch.utils.data.Dataset):
-
     def __init__(
         self,
         dataset: Union[datasets.Dataset, List[datasets.Dataset]],
@@ -116,24 +113,24 @@ class CustomDataset(torch.utils.data.Dataset):
             assert self.sts_ds is not None, f"Trying to access STS dataset at index {item - self.len_ir}, but STS dataset is None"
             data_item = self.sts_ds[item - self.len_ir]
 
-        assert "query" in data_item and "positives" in data_item, f"该数据项缺少必要字段 query 或 positives, 索引 = {item}"
+        assert "query" in data_item and "positives" in data_item, f"Data item missing required fields 'query' or 'positives', index = {item}"
 
         query = data_item["query"]
-        assert len(query) == 3, f"query 的长度不符合预期: {len(query)}, 索引 = {item}"
+        assert len(query) == 3, f"Query length does not match expectation: {len(query)}, index = {item}"
         query = [query[0], query[1], query[2][:self.max_char_len]]
 
         passages = []
         poss, scores = self.get_positives(data_item)
 
         for (pos, score) in zip(poss, scores):
-            assert len(pos) == 3, f"正样本的长度不符合预期: {len(pos)}, 索引 = {item}"
+            assert len(pos) == 3, f"Positive sample length does not match expectation: {len(pos)}, index = {item}"
             pos = [pos[0], pos[1], pos[2][:self.max_char_len]]
             passages.append((pos, score))
 
         negs, scores = self.get_negatives(data_item)
 
         for (neg, score) in zip(negs, scores):
-            assert len(neg) == 3, f"负样本的长度不符合预期: {len(neg)}, 索引 = {item}"
+            assert len(neg) == 3, f"Negative sample length does not match expectation: {len(neg)}, index = {item}"
             neg = [neg[0], neg[1], neg[2][:self.max_char_len]]
             passages.append((neg, score))
 
@@ -150,19 +147,20 @@ class CustomCollator(DataCollatorWithPadding):
 
     def build_query(self, text_list):
         """
-        组装 instruction 和 text，并同时返回完整文本和指令部分的长度。
-        返回: (full_text: str, instruction_len: int)
+        Assemble instruction and text, and return both the full text and instruction length.
+        Returns: (full_text: str, instruction_len: int)
         """
 
         model_name_lower = self.model_name_or_path.lower()
         is_minicpm_or_e5 = "minicpm" in model_name_lower or "e5" in model_name_lower
+
         is_bge = "bge" in model_name_lower
         is_youtu = "youtu_" in model_name_lower
 
         assert model_name_lower, "model_name_or_path must be provided and cannot be an empty string."
 
         assert sum([is_minicpm_or_e5, is_bge, is_youtu]) == 1, \
-            f"Model type ambiguity or unsupported. Exactly one of ('minicpm'/'e5', 'bge', 'youtu') " \
+            f"Model type ambiguity or unsupported. Exactly one of ('minicpm', 'e5', 'bge', 'youtu') " \
             f"must be specified in '{self.model_name_or_path}'."
 
         task_instruction, instance_instruction, text = [s.strip("\t\n :") for s in text_list]
@@ -187,25 +185,27 @@ class CustomCollator(DataCollatorWithPadding):
 
     def build_passage(self, text_list):
         """
-        组装 instruction 和 text，并同时返回完整文本和指令部分的长度。
-        返回: (full_text: str, instruction_len: int)
+        Assemble instruction and text, and return both the full text and instruction length.
+        Returns: (full_text: str, instruction_len: int)
         """
 
         model_name_lower = self.model_name_or_path.lower()
         is_minicpm_or_e5 = "minicpm" in model_name_lower or "e5" in model_name_lower
+
         is_bge = "bge" in model_name_lower
         is_youtu = "youtu_" in model_name_lower
 
         assert model_name_lower, "model_name_or_path must be provided and cannot be an empty string."
 
         assert sum([is_minicpm_or_e5, is_bge, is_youtu]) == 1, \
-            f"Model type ambiguity or unsupported. Exactly one of ('minicpm'/'e5', 'bge', 'youtu') " \
+            f"Model type ambiguity or unsupported. Exactly one of ('minicpm', 'e5', 'bge', 'youtu') " \
             f"must be specified in '{self.model_name_or_path}'."
 
         __, instance_instruction, text = [s.strip("\t\n :") for s in text_list]
 
         content_text = text
         task_text = ""
+        
         if is_minicpm_or_e5:
             task_text = "<s>"
             content_text += "</s>"
@@ -221,8 +221,8 @@ class CustomCollator(DataCollatorWithPadding):
 
     def create_text_mask(self, encodings: Dict[str, torch.Tensor], instruction_char_lens: List[int]) -> torch.Tensor:
         """
-        根据 offset_mapping 和指令的字符长度，创建精确的 text_mask。
-        1 表示 text token, 0 表示 instruction/padding token。
+        Create precise text_mask based on offset_mapping and instruction character lengths.
+        1 indicates text token, 0 indicates instruction/padding token.
         """
         offsets = encodings.pop("offset_mapping")
         device = offsets.device

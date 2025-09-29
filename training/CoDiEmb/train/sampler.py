@@ -9,17 +9,17 @@ logger = logging.getLogger(__name__)
 @dataclass
 class MixedDatasetSampler(torch.utils.data.Sampler[int]):
     """
-    混合数据集采样器
+    Mixed Dataset Sampler
 
-    核心思想：
-    - 每个GPU内部：一个batch的样本必须来自同一个数据集
-    - 不同GPU之间：可以同时处理不同的数据集
-    - 关键修复：确保所有GPU的训练步数完全一致
+    Core concept:
+    - Within each GPU: samples in one batch must come from the same dataset
+    - Across different GPUs: can simultaneously process different datasets
+    - Key fix: ensure all GPUs have exactly the same number of training steps
 
-    实现逻辑：
-    1. 计算全局可用的完整批次总数
-    2. 确保所有GPU处理相同数量的批次
-    3. 每个GPU内部确保单批次来自同一数据集
+    Implementation logic:
+    1. Calculate the total number of complete batches available globally
+    2. Ensure all GPUs process the same number of batches
+    3. Within each GPU, ensure single batch comes from the same dataset
     """
 
     def __init__(
@@ -41,9 +41,11 @@ class MixedDatasetSampler(torch.utils.data.Sampler[int]):
 
         self.dataset = dataset
         self.ds_lens = ds_lens
-        self.num_replicas = num_replicas
-        self.rank = rank
         self.per_device_batch_size = per_device_batch_size
+
+        self.rank = rank
+        self.num_replicas = num_replicas
+    
         self.seed = seed
         self.epoch = epoch
 
@@ -52,7 +54,6 @@ class MixedDatasetSampler(torch.utils.data.Sampler[int]):
 
         self.batches_per_gpu = self.total_batches_all_datasets // num_replicas
         self.total_batches_used = self.batches_per_gpu * num_replicas
-
         self.num_samples = self.batches_per_gpu * per_device_batch_size
 
         if self.rank == 0:
@@ -62,15 +63,15 @@ class MixedDatasetSampler(torch.utils.data.Sampler[int]):
             discarded_samples = total_samples - used_samples
             discarded_batches = self.total_batches_all_datasets - self.total_batches_used
 
-            print(f"总样本数: {total_samples}")
-            print(f"使用的样本数: {used_samples}")
-            print(f"丢弃的样本数: {discarded_samples}")
-            print(f"丢弃比例: {discarded_samples / total_samples * 100:.2f}%")
-            print(f"总批次数: {self.total_batches_all_datasets}")
-            print(f"使用的批次数: {self.total_batches_used}")
-            print(f"丢弃的批次数: {discarded_batches}")
-            print(f"每个GPU的批次数: {self.batches_per_gpu}")
-            print(f"每个GPU的样本数: {self.num_samples}")
+            print(f"Total samples: {total_samples}")
+            print(f"Used samples: {used_samples}")
+            print(f"Discarded samples: {discarded_samples}")
+            print(f"Discard ratio: {discarded_samples / total_samples * 100:.2f}%")
+            print(f"Total batches: {self.total_batches_all_datasets}")
+            print(f"Used batches: {self.total_batches_used}")
+            print(f"Discarded batches: {discarded_batches}")
+            print(f"Batches per GPU: {self.batches_per_gpu}")
+            print(f"Samples per GPU: {self.num_samples}")
             print(f"=== MixedDatasetSampler Debug Info ===")
 
     def set_epoch(self, epoch: int) -> None:
@@ -102,7 +103,7 @@ class MixedDatasetSampler(torch.utils.data.Sampler[int]):
         generator = torch.Generator()
         generator.manual_seed(self.seed + self.epoch + self.rank * 10000)
 
-        print(f"{gpu_emoji} [GPU {self.rank}] 🎲 使用随机种子: {self.seed + self.epoch + self.rank * 10000}")
+        print(f"{gpu_emoji} [GPU {self.rank}] 🎲 Using random seed: {self.seed + self.epoch + self.rank * 10000}")
 
         all_dataset_batches = self.get_all_dataset_batches(generator)
 
@@ -125,8 +126,8 @@ class MixedDatasetSampler(torch.utils.data.Sampler[int]):
             dataset_distribution[dataset_idx] += 1
             final_indices.extend(batch_indices)
 
-        print(f"{gpu_emoji} [GPU {self.rank}] 🎯 数据集分布: {dataset_distribution}")
-        print(f"{gpu_emoji} [GPU {self.rank}] 📏 最终处理 {len(final_indices)} 个样本 (批次数: {len(gpu_batches)})")
+        print(f"{gpu_emoji} [GPU {self.rank}] 🎯 Dataset distribution: {dataset_distribution}")
+        print(f"{gpu_emoji} [GPU {self.rank}] 📏 Processing {len(final_indices)} samples (batches: {len(gpu_batches)})")
 
         yield from final_indices
 
@@ -188,28 +189,29 @@ class SingleDatasetSampler(torch.utils.data.Sampler[int]):
 
         if self.rank == 0:
             print(f"=== StrictSingleDatasetSampler Debug Info ===")
+            
             total_samples = sum(self.ds_lens)
             total_discarded = total_samples - self.num_total_samples_from_core_logic
-            print(f"总样本数: {total_samples}")
-            print(f"丢弃的样本数: {total_discarded}")
-            print(f"丢弃比例: {total_discarded / total_samples * 100:.2f}%")
+            
+            print(f"Total samples: {total_samples}")
+            print(f"Discarded samples: {total_discarded}")
+            print(f"Discard ratio: {total_discarded / total_samples * 100:.2f}%")
 
-            print(f"每个 GPU 每个 epoch 处理的样本数: {self.num_samples_per_replica}")
-            print(f"如果 per_device_batch_size = {self.global_batch_size_for_chunking // self.num_replicas}:")
+            print(f"Samples per GPU per epoch: {self.num_samples_per_replica}")
+            print(f"If per_device_batch_size = {self.global_batch_size_for_chunking // self.num_replicas}:")
             print("=== End Debug Info ===")
 
     def get_chunks(self, global_idxs, ds_indices_per_dataset_chunks):
-        # 按 global_batch_size_for_chunking 分块, 丢弃不足 batch_size 的那部分
+        # Split into chunks by global_batch_size_for_chunking, discard the part that doesn't fit into batch_size
         # This is the primary "drop_last" mechanism of this sampler.
         chunked = list(torch.split(global_idxs, self.global_batch_size_for_chunking))
         if len(chunked) > 0 and len(chunked[-1]) < self.global_batch_size_for_chunking:
-            chunked.pop()  # pop 掉最后那个不完整的 batch
+            chunked.pop()  # Remove the last incomplete batch
 
         ds_indices_per_dataset_chunks.extend(c for c in chunked if len(c) == self.global_batch_size_for_chunking)
         return ds_indices_per_dataset_chunks
 
     def __iter__(self) -> Iterator[int]:
-
         g = torch.Generator()
         g.manual_seed(self.seed + self.epoch)
 
@@ -264,7 +266,7 @@ class DynamicBatchSizeSampler(torch.utils.data.Sampler[int]):
         self,
         dataset: torch.utils.data.Dataset,
         ds_lens: List[int],
-        ds_types: List[str],  # ["ir", "sts", "ir", ...] 标识每个子数据集的类型
+        ds_types: List[str],  # ["ir", "sts", "ir", ...] identifies the type of each sub-dataset
         num_replicas: int,
         rank: int,
         ir_per_device_batch_size: int,
@@ -324,14 +326,14 @@ class DynamicBatchSizeSampler(torch.utils.data.Sampler[int]):
 
     def _print_debug_info(self):
         print(f"\n{'='*80}")
-        print(f"🎯 DynamicBatchSizeSampler 配置信息")
-        print(f"GPU 数量: {self.num_replicas}")
+        print(f"🎯 DynamicBatchSizeSampler Configuration")
+        print(f"Number of GPUs: {self.num_replicas}")
         print(f"IR per device batch size: {self.ir_per_device_batch_size}")
         print(f"STS per device batch size: {self.sts_per_device_batch_size}")
-        print(f"梯度累积步数: {self.gradient_accumulation_steps}")
+        print(f"Gradient accumulation steps: {self.gradient_accumulation_steps}")
         print(f"IR global batch size: {self.ir_global_batch_size}")
         print(f"STS global batch size: {self.sts_global_batch_size}")
-        print(f"\n📊 各子数据集统计:")
+        print(f"\n📊 Sub-dataset statistics:")
 
         total_used = 0
         total_samples = 0
@@ -339,12 +341,12 @@ class DynamicBatchSizeSampler(torch.utils.data.Sampler[int]):
             total_samples += batch_info['dataset_length']
             total_used += batch_info['samples_used']
 
-        print(f"总样本数: {total_samples}")
-        print(f"使用样本数: {total_used}")
-        print(f"丢弃样本数: {total_samples - total_used}")
-        print(f"丢弃比例: {(total_samples - total_used) / total_samples * 100:.2f}%")
-        print(f"总 iteration 数: {self.total_iterations}")
-        print(f"每个 GPU 的 iteration 数: {self.iterations_per_gpu}")
+        print(f"Total samples: {total_samples}")
+        print(f"Used samples: {total_used}")
+        print(f"Discarded samples: {total_samples - total_used}")
+        print(f"Discard ratio: {(total_samples - total_used) / total_samples * 100:.2f}%")
+        print(f"Total iterations: {self.total_iterations}")
+        print(f"Iterations per GPU: {self.iterations_per_gpu}")
         print(f"{'='*80}\n")
 
     def set_epoch(self, epoch: int) -> None:
@@ -352,11 +354,11 @@ class DynamicBatchSizeSampler(torch.utils.data.Sampler[int]):
 
     def __iter__(self) -> Iterator[int]:
         """
-        返回一个虚拟的索引序列，长度等于当前 GPU 的 iteration 数
-        确保与 Trainer 兼容
+        Returns a virtual index sequence with length equal to the current GPU's iteration count
+        Ensures compatibility with Trainer
         """
         return iter(range(self.iterations_per_gpu))
 
     def __len__(self) -> int:
-        """返回当前 GPU 的 iteration 数"""
+        """Returns the current GPU's iteration count"""
         return self.iterations_per_gpu

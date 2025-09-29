@@ -135,178 +135,6 @@ class ContrastiveLoss:
         return torch.cat(dist_nn.all_gather(t), dim=0)
 
 
-class MultiPositiveInfoNCELoss:
-    def __init__(
-        self,
-        threshold: float = 1.0,
-        temperature: float = 1.0,
-        positive_group_size: int = 1,
-        negative_group_size: int = 1,
-        negatives_cross_device: bool = False,
-        reduction: str = "mean",
-    ) -> None:
-        self.threshold = threshold
-        self.temperature = temperature
-        self.positive_group_size = positive_group_size
-        self.negative_group_size = negative_group_size
-        self.group_size = positive_group_size + negative_group_size
-        
-        self.negatives_cross_device = negatives_cross_device
-        self.reduction = reduction
-
-        if self.negatives_cross_device and not dist.is_initialized():
-            raise ValueError("negatives_cross_device=True requires distributed training")
-
-    def __call__(
-        self,
-        q_reps: torch.Tensor,              # (batch_size, hidden_dim)
-        p_reps: torch.Tensor,              # (batch_size * group_size, hidden_dim)
-        y: Optional[torch.Tensor] = None,  # (batch_size * group_size,) or None
-    ) -> torch.Tensor:
-        if self.negatives_cross_device:
-            q_reps = self._gather_tensor(q_reps)
-            p_reps = self._gather_tensor(p_reps)
-            if y is not None:
-                y = self._gather_tensor(y)
-        
-        device = q_reps.device
-        batch_size = q_reps.size(0)
-        base = torch.arange(batch_size, device=device) * self.group_size
-
-        logits = self.compute_similarity(q_reps, p_reps) / self.temperature
-        positive_mask = torch.zeros_like(logits, dtype=torch.bool)
-
-        if y is None:
-            positive_offsets = torch.arange(self.positive_group_size, device=device)
-            positive_indices = base.unsqueeze(1) + positive_offsets
-            positive_mask.scatter_(1, positive_indices, True)
-            valid_mask = torch.ones(batch_size, dtype=torch.bool, device=device)
-        else:
-            y = y.view(batch_size, self.group_size)
-            positive_mask.scatter_(
-                1,
-                (base.unsqueeze(1) + torch.arange(self.group_size, device=device)).view(batch_size, self.group_size),
-                (y >= self.threshold)
-            )
-            valid_mask = positive_mask.any(dim=1)
-        
-        if valid_mask.sum() == 0:
-            return torch.tensor(0.0, device=device, requires_grad=True)
-        
-        logits = logits[valid_mask]
-        positive_mask = positive_mask[valid_mask]
-
-        exp_logits = logits.exp()
-        sum_all = exp_logits.sum(dim=1)
-        sum_pos = (exp_logits * positive_mask.float()).sum(dim=1)
-
-        eps = 1e-8
-        loss = torch.log(sum_all + eps) - torch.log(sum_pos + eps)
-
-        if self.reduction == "mean":
-            return loss.mean()
-        elif self.reduction == "sum":
-            return loss.sum()
-        else:
-            return loss
-
-    @staticmethod
-    def compute_similarity(q_reps: torch.Tensor, p_reps: torch.Tensor) -> torch.Tensor:
-        return torch.matmul(q_reps, p_reps.transpose(0, 1))
-
-    @staticmethod
-    def _gather_tensor(t: torch.Tensor) -> torch.Tensor:
-        if t is None:
-            return None
-        return torch.cat(dist_nn.all_gather(t), dim=0)
-
-
-class CoSentLoss(nn.Module):
-    def __init__(self, temperature: float = 0.05, negatives_cross_device: bool = False):
-        super().__init__()
-        self.temperature: float = temperature
-        self.negatives_cross_device = negatives_cross_device
-        self.register_buffer("bias", torch.tensor([0.0], dtype=torch.float32))
-
-        if self.negatives_cross_device:
-            if not dist.is_initialized():
-                raise ValueError('Cannot do negatives_cross_device without distributed training')
-            self.world_size = dist.get_world_size()
-
-    def forward(self, predict_similarity: torch.Tensor, true_similarity: torch.Tensor) -> torch.Tensor:
-        if self.negatives_cross_device:
-            predict_similarity = self._dist_gather_tensor(predict_similarity)
-            true_similarity = self._dist_gather_tensor(true_similarity)
-        
-        predict_similarity = predict_similarity / self.temperature
-        predict_similarity_difference = -(predict_similarity.unsqueeze(0) - predict_similarity.unsqueeze(1))
-
-        similar_mask = true_similarity.unsqueeze(0) <= true_similarity.unsqueeze(1)
-        predict_similarity_difference = predict_similarity_difference[~similar_mask]
-        predict_similarity_difference_with_bias = torch.cat((predict_similarity_difference, 
-                                                             self.bias.to(predict_similarity_difference.device)))
-
-        loss = torch.logsumexp(predict_similarity_difference_with_bias, dim=0)
-        return loss.to(torch.float32)
-
-    def _dist_gather_tensor(self, t: torch.Tensor):
-        if t is None:
-            return None
-        return torch.cat(dist_nn.all_gather(t), dim=0)
-
-
-class ImprovedCoSentLoss(nn.Module):
-    def __init__(
-        self,
-        temperature: float = 0.05,
-        weight: float = 0.08,
-        delta_limit: Optional[float] = 5.0,
-        negatives_cross_device: bool = False
-    ) -> None:
-        super().__init__()
-        self.eps = 1e-8
-        self.weight = weight
-        self.temperature = temperature
-        self.delta_limit = delta_limit
-        self.negatives_cross_device = negatives_cross_device
-        self.register_buffer("bias", torch.tensor([0.0], dtype=torch.float32))
-
-        if self.negatives_cross_device and not dist.is_initialized():
-            raise ValueError("negatives_cross_device=True requires distributed training")
-
-    def forward(
-        self,
-        predict_similarity: torch.Tensor,
-        true_similarity: torch.Tensor
-    ) -> torch.Tensor:
-        if self.negatives_cross_device:
-            predict_similarity = self._dist_gather_tensor(predict_similarity)
-            true_similarity = self._dist_gather_tensor(true_similarity)
-        
-        predict_similarity = predict_similarity / self.temperature
-        predict_similarity_difference = -(predict_similarity.unsqueeze(0) - predict_similarity.unsqueeze(1))
-
-        true_similarity_difference = true_similarity.unsqueeze(0) - true_similarity.unsqueeze(1)
-        order_mask = true_similarity_difference > 0
-
-        if order_mask.sum() == 0:
-            return torch.tensor(0.0, device=predict_similarity.device, requires_grad=True)
-        
-        predict_similarity_difference = predict_similarity_difference[order_mask]
-        true_similarity_difference = true_similarity_difference[order_mask]
-
-        delta_avg = true_similarity_difference.mean().clamp_min(self.eps)
-        true_similarity_difference = true_similarity_difference / delta_avg
-
-        if self.delta_limit is not None:
-            true_similarity_difference = true_similarity_difference.clamp(max=self.delta_limit)
-        
-        terms = predict_similarity_difference + torch.log(true_similarity_difference + self.eps)
-        terms = torch.cat((terms, self.bias.to(terms.device)))
-        loss = torch.logsumexp(terms, dim=0) * self.weight
-        return loss.to(torch.float32)
-
-
 class PearsonCorrelationLoss(nn.Module):
     def __init__(self, negatives_cross_device: bool = False):
         super().__init__()
@@ -333,41 +161,6 @@ class PearsonCorrelationLoss(nn.Module):
         var_y = torch.var(y, unbiased=False)
         pearson = torch.mean((x - mean_x) * (y - mean_y)) / (torch.sqrt(var_x) * torch.sqrt(var_y))
         return (-pearson + 1)
-
-    def _dist_gather_tensor(self, t: torch.Tensor):
-        if t is None:
-            return None
-        return torch.cat(dist_nn.all_gather(t), dim=0)
-
-
-class KLDivergenceLoss(nn.Module):
-    def __init__(
-        self, 
-        temperature: float = 1.0,
-        negatives_cross_device: bool = False,
-        reduction: str = "batchmean"
-    ):
-        super().__init__()
-        self.reduction = reduction
-        self.temperature = temperature
-        self.negatives_cross_device = negatives_cross_device
-        
-        if self.negatives_cross_device and not dist.is_initialized():
-            raise ValueError("negatives_cross_device=True requires distributed training")
-
-    def forward(self, predict_similarity: torch.Tensor, true_similarity: torch.Tensor) -> torch.Tensor:
-        if self.negatives_cross_device:
-            predict_similarity = self._dist_gather_tensor(predict_similarity)
-            true_similarity = self._dist_gather_tensor(true_similarity)
-        
-        if predict_similarity.numel() == 0 or true_similarity.numel() == 0:
-            return torch.tensor(0.0, device=predict_similarity.device, requires_grad=True)
-        
-        true_probs = F.softmax(true_similarity / self.temperature, dim=0)
-        log_pred_probs = F.log_softmax(predict_similarity / self.temperature, dim=0)
-
-        kl_loss = F.kl_div(log_pred_probs, true_probs, reduction=self.reduction)
-        return kl_loss
 
     def _dist_gather_tensor(self, t: torch.Tensor):
         if t is None:
@@ -418,7 +211,6 @@ class RankKLDivergenceLoss(nn.Module):
             ideal_scores_normalized = torch.tensor([0.0], device=ranks.device)
 
         true_probs = F.softmax(ideal_scores_normalized / self.temperature, dim=0)
-
         log_pred_probs = F.log_softmax(predict_similarity / self.temperature, dim=0)
 
         kl_loss = F.kl_div(log_pred_probs, true_probs, reduction=self.reduction)
@@ -482,6 +274,7 @@ class PROLoss(nn.Module):
 
         predict_similarity = predict_similarity / self.temperature
         sorted_indices = torch.argsort(true_similarity, descending=True)
+
         y_true_sorted = true_similarity[sorted_indices]
         y_pred_sorted = predict_similarity[sorted_indices]
 
@@ -492,10 +285,8 @@ class PROLoss(nn.Module):
         for k in range(batch_size - 1):
             y_k_true = y_true_sorted[k]
             y_k_pred = y_pred_sorted[k]
-            
-            y_tail_true = y_true_sorted[k+1:]
-            y_tail_pred = y_pred_sorted[k+1:]
-            
+            y_tail_true = y_true_sorted[k + 1:]
+            y_tail_pred = y_pred_sorted[k + 1:]
             mask = (y_k_true - y_tail_true) > self.eps
             
             if not mask.any():
@@ -503,28 +294,19 @@ class PROLoss(nn.Module):
 
             y_neg_true = y_tail_true[mask]
             y_neg_pred = y_tail_pred[mask]
-
             weights_neg = y_k_true - y_neg_true
             
             weight_k = weights_neg.max()
-
-
             logit_k = y_k_pred * weight_k
-   
             logits_neg = y_neg_pred * weights_neg
-            
-
             all_logits = torch.cat([logit_k.unsqueeze(0), logits_neg])
             
-
             log_prob_k = F.log_softmax(all_logits, dim=0)[0]
-            
             total_log_probs += log_prob_k
             loss_count += 1
 
         if loss_count == 0:
             return torch.tensor(0.0, device=predict_similarity.device, requires_grad=True)
-
 
         pro_loss = -total_log_probs / loss_count
         

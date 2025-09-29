@@ -52,7 +52,7 @@ def filter_too_long_instructions(tokenizer, dataset, query_max_len, passage_max_
     return dataset.filter(filter_fn, num_proc=num_proc, load_from_cache_file=True)
 
 
-def normalize_dataset_features(dataset, default_query_instruction="", default_passage_instruction=""):
+def normalize_dataset_features(dataset):
     features = datasets.Features({
         "task_type": datasets.Value("string"),
         "query": datasets.Sequence(datasets.Value("string")),
@@ -67,14 +67,14 @@ def normalize_dataset_features(dataset, default_query_instruction="", default_pa
         assert isinstance(query, list) and len(query) == 3, f"Expected query to be list or str, got {type(query)}"
         query = [str(item) for item in query]
 
-        positives = example.get("positives", [["", "", "无"]])
-        negatives = example.get("negatives", [["", "", "无"]])
+        positives = example.get("positives", [["", "", "nothing"]])
+        negatives = example.get("negatives", [["", "", "nothing"]])
 
         assert isinstance(positives, list)
         assert isinstance(negatives, list)
 
         if len(negatives) == 0:
-            negatives = [["", "", "无"]]
+            negatives = [["", "", "nothing"]]
 
         positive_scores = example.get("positive_scores", None)
         if len(positive_scores) == 0:
@@ -100,8 +100,7 @@ def normalize_dataset_features(dataset, default_query_instruction="", default_pa
     return dataset.map(convert_types, features=features)
 
 
-def process_dataset(data_args, training_args, num_samples, ds_name_to_samples, task_data,
-                    default_query_instruction="", default_passage_instruction=""):
+def process_dataset(data_args, training_args, num_samples, ds_name_to_samples, task_data):
     data_files = (
         [
             os.path.join(task_data, x)
@@ -151,7 +150,7 @@ def process_dataset(data_args, training_args, num_samples, ds_name_to_samples, t
                                 random.sample(list(range(tmp_ds_len)), samples)
                             )
 
-                tmp_ds = normalize_dataset_features(tmp_ds, default_query_instruction, default_passage_instruction)
+                tmp_ds = normalize_dataset_features(tmp_ds)
                 ds_name_to_samples[file.split("/")[-1]] = len(tmp_ds)
                 logger.info(f"dataset size for {file}: {len(tmp_ds)}")
                 task_ds.append(tmp_ds)
@@ -164,32 +163,30 @@ def process_dataset(data_args, training_args, num_samples, ds_name_to_samples, t
 
 def load_ir_train_data(data_args, training_args, num_samples, ds_name_to_samples):
     if data_args.ir_train_data:
-        ir_ds, ds_name_to_samples = process_dataset(data_args, training_args, num_samples, ds_name_to_samples,
-                                data_args.ir_train_data, data_args.query_instruction, data_args.passage_instruction)
+        ir_ds, ds_name_to_samples = process_dataset(data_args, training_args, num_samples, ds_name_to_samples, data_args.ir_train_data)
         ir_lens = [len(t) for t in ir_ds]
 
         ir_ds = datasets.concatenate_datasets(ir_ds)
         logger.info("Embedding mode IR: %d samples", len(ir_ds))
     else:
         ir_ds = None
-        logger.info("Embedding mode IR: 0 samples (未提供数据)")
         ir_lens = []
-
+        logger.info("Embedding mode IR: 0 samples (no data provided)")
+    
     return ir_ds, ir_lens, ds_name_to_samples
 
 
 def load_sts_train_data(data_args, training_args, num_samples, ds_name_to_samples):
     if data_args.sts_train_data:
-        sts_ds, ds_name_to_samples = process_dataset(data_args, training_args, num_samples, ds_name_to_samples,
-                                 data_args.sts_train_data, data_args.query_instruction, data_args.passage_instruction)
+        sts_ds, ds_name_to_samples = process_dataset(data_args, training_args, num_samples, ds_name_to_samples, data_args.sts_train_data)
         sts_lens = [len(t) for t in sts_ds]
 
         sts_ds = datasets.concatenate_datasets(sts_ds)
         logger.info("Embedding mode STS: %d samples", len(sts_ds))
     else:
         sts_ds = None
-        logger.info("Embedding mode STS: 0 samples (未提供数据)")
         sts_lens = []
+        logger.info("Embedding mode STS: 0 samples (no data provided)")
 
     return sts_ds, sts_lens, ds_name_to_samples
 
@@ -199,16 +196,14 @@ def load_train_data(data_args, training_args):
     ds_name_to_samples = {}
 
     ds_types, ds_embedding_lens = [], []
-    assert data_args.ir_train_data or data_args.sts_train_data, "至少需要提供 ir_train_data 或 sts_train_data 中的一个"
+    assert data_args.ir_train_data or data_args.sts_train_data, "At least one of ir_train_data or sts_train_data must be provided"
 
     if data_args.data_sampler == "dynamic":
         assert data_args.ir_train_data and data_args.sts_train_data,  \
             "Dynamic sampler requires both ir_train_data and sts_train_data to be provided."
 
     ir_ds, ir_lens, ds_name_to_samples = load_ir_train_data(data_args, training_args, num_samples, ds_name_to_samples)
-    sts_ds, sts_lens, ds_name_to_samples = load_sts_train_data(
-        data_args, training_args, num_samples, ds_name_to_samples
-    )
+    sts_ds, sts_lens, ds_name_to_samples = load_sts_train_data(data_args, training_args, num_samples, ds_name_to_samples)
 
     ds_embedding_lens.extend(ir_lens)
     ds_types.extend(["ir"] * len(ir_lens))
@@ -217,9 +212,10 @@ def load_train_data(data_args, training_args):
     ds_types.extend(["sts"] * len(sts_lens))
 
     ds = [ds for ds in [ir_ds, sts_ds] if ds is not None]
-    logger.info("数据集类型分布: IR (%d 个子数据集), STS (%d 个子数据集)", len(ir_lens), len(sts_lens))
+    logger.info("Dataset type distribution: IR (%d sub-datasets), STS (%d sub-datasets)", len(ir_lens), len(sts_lens))
 
     os.makedirs(training_args.output_dir, exist_ok=True)
+
     with open(os.path.join(training_args.output_dir, "dataset_num_samples.json"), "w") as f:
         json.dump(ds_name_to_samples, f)
     os.system("pkill -9 -f spawn")
@@ -485,7 +481,7 @@ def main():
         trainer.get_train_dataloader = sampler_dict[data_args.data_sampler]
 
     global_step = 0
-    def training_step(self, model, inputs, num_items_in_batch=None) -> torch.Tensor:
+    def training_step(self, model, inputs) -> torch.Tensor:
         """
         Perform a training step on a batch of inputs.
 

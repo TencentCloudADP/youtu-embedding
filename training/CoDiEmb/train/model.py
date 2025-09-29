@@ -4,11 +4,11 @@ from typing import Dict, Optional, List
 
 import torch
 from torch import Tensor
-from transformers import AutoModel, AutoModelForCausalLM
 from transformers.file_utils import ModelOutput
+from transformers import AutoModel, AutoModelForCausalLM
 
 from loss import ContrastiveLoss
-from loss import CoSentLoss, PearsonCorrelationLoss, RankKLDivergenceLoss, PROLoss
+from loss import PearsonCorrelationLoss, RankKLDivergenceLoss, PROLoss
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +38,8 @@ class TrainModel(torch.nn.Module):
     ):
         super().__init__()
         self.model_name_or_path = model_name_or_path
-        if "youtu_" in model_name_or_path:  # 加载youtu模型
+
+        if "youtu_" in model_name_or_path:
             base_model = AutoModelForCausalLM.from_pretrained(model_name_or_path, trust_remote_code=True, output_hidden_states=True, **kwargs)
             self.model = base_model.model
         else:
@@ -62,7 +63,6 @@ class TrainModel(torch.nn.Module):
         # STS Loss Functions
         self.pro_loss_fun = PROLoss(temperature=0.05, negatives_cross_device=sts_negatives_cross_device)
         self.pearson_loss_fn = PearsonCorrelationLoss(negatives_cross_device=sts_negatives_cross_device)
-        # self.cosent_loss_fn = CoSentLoss(temperature=0.05, negatives_cross_device=sts_negatives_cross_device)
         self.kl_div_loss_fn = RankKLDivergenceLoss(temperature=0.05, negatives_cross_device=sts_negatives_cross_device)
         self.sts_infonce_loss_fn = ContrastiveLoss(task_type="sts", threshold=1.0, temperature=temperature, negatives_cross_device=sts_negatives_cross_device)
 
@@ -145,7 +145,7 @@ class TrainModel(torch.nn.Module):
         p_grad: bool = True,
     ):
         if len(set(task_type)) > 1:
-            raise ValueError(f"本批出现多种 task_type: {set(task_type)}")
+            raise ValueError(f"Multiple task_types appeared in this batch: {set(task_type)}")
 
         task_type = task_type[0]
         batch_size = query['input_ids'].shape[0]
@@ -187,7 +187,7 @@ class TrainModel(torch.nn.Module):
             else:
                 loss_infonce = 0.0
 
-            if not self.normalized: # 计算余弦相似度
+            if not self.normalized:
                 print('need to normalize before computing cosine similarity')
                 q_reps = torch.nn.functional.normalize(q_reps, dim=-1)
                 p_reps = torch.nn.functional.normalize(p_reps, dim=-1)
@@ -199,20 +199,15 @@ class TrainModel(torch.nn.Module):
 
             loss = loss_infonce + loss_pro + loss_pearson + loss_kl
 
-            # loss_cosent = 0.08 * self.cosent_loss_fn(sim, scores)
-            # loss = loss_infonce + loss_cosent + loss_pearson + loss_kl
-
             if torch.cuda.current_device() == 0:
-                # print(f"STS Cosent Loss: {loss_cosent.item():.4f}")
                 print(f"STS Pearson Loss: {loss_pearson.item():.4f}")
                 print(f"STS PRO Loss: {loss_pro.item():.4f}")
                 print(f"STS KL Loss: {loss_kl.item():.4f}")
                 print(f"STS Embedding Loss: {loss.item():.4f}")
 
-            # 确保 STS 任务损失为 float32，以解决与 DeepSpeed 的兼容性问题
             loss = loss.to(torch.float32)
         elif task_type == "ir":
-            if not self.normalized: # 计算余弦相似度
+            if not self.normalized:
                 q_reps = torch.nn.functional.normalize(q_reps, dim=-1)
                 p_reps = torch.nn.functional.normalize(p_reps, dim=-1)
 
@@ -223,7 +218,6 @@ class TrainModel(torch.nn.Module):
                 print(f"IR InfoNCE Loss: {loss_infonce.item():.4f}")
                 print(f"IR Total Loss: {loss.item():.4f}")
 
-            # 确保 IR 任务损失为 float32，以解决与 DeepSpeed 的兼容性问题
             loss = loss.to(torch.float32)
         else:
             raise ValueError(f"Unknown task type: {task_type}")
