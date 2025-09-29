@@ -1,0 +1,18 @@
+// TODO-APP: hydration warning
+import './app-webpack';
+import { renderAppDevOverlay } from 'next/dist/compiled/next-devtools';
+import { appBootstrap } from './app-bootstrap';
+import { getOwnerStack } from '../next-devtools/userspace/app/errors/stitched-error';
+import { isRecoverableError } from './react-client-callbacks/on-recoverable-error';
+// eslint-disable-next-line @next/internal/typechecked-require
+const instrumentationHooks = require('../lib/require-instrumentation-client');
+appBootstrap(()=>{
+    const { hydrate } = require('./app-index');
+    try {
+        hydrate(instrumentationHooks);
+    } finally{
+        renderAppDevOverlay(getOwnerStack, isRecoverableError);
+    }
+});
+
+//# sourceMappingURL=app-next-dev.js.map

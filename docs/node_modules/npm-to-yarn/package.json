@@ -1,0 +1,71 @@
+{
+  "name": "npm-to-yarn",
+  "version": "3.0.1",
+  "description": "Convert npm CLI commands to Yarn commands, and vice versa",
+  "keywords": [
+    "string convert",
+    "documentation",
+    "yarn to npm"
+  ],
+  "main": "dist/npm-to-yarn.umd.js",
+  "module": "dist/npm-to-yarn.mjs",
+  "typings": "dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/npm-to-yarn.mjs",
+      "require": "./dist/npm-to-yarn.umd.js",
+      "default": "./dist/npm-to-yarn.umd.js"
+    }
+  },
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "author": "Ben Gubler <nebrelbug@gmail.com>",
+  "homepage": "https://github.com/nebrelbug/npm-to-yarn#readme",
+  "funding": "https://github.com/nebrelbug/npm-to-yarn?sponsor=1",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nebrelbug/npm-to-yarn.git"
+  },
+  "bugs": {
+    "url": "https://github.com/nebrelbug/npm-to-yarn/issues"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": "^12.22.0 || ^14.17.0 || >=16.0.0"
+  },
+  "type": "commonjs",
+  "scripts": {
+    "lint": "eslint src/*.ts test/*.spec.ts --ext .js,.ts",
+    "prebuild": "rimraf dist",
+    "build": "rollup -c rollup.config.mjs",
+    "start": "rollup -c rollup.config.mjs -w",
+    "test": "jest --coverage",
+    "test:watch": "jest --coverage --watch",
+    "test:prod": "npm run lint && npm run test -- --no-cache",
+    "format": "prettier-standard --format"
+  },
+  "lint-staged": {
+    "{src,test}/**/*.ts": [
+      "prettier-standard --lint"
+    ]
+  },
+  "devDependencies": {
+    "@types/jest": "^29.2.4",
+    "@types/node": "^18.11.15",
+    "@typescript-eslint/eslint-plugin": "^5.54.0",
+    "@typescript-eslint/parser": "^5.54.0",
+    "@rollup/plugin-typescript": "^11.0.0",
+    "eslint": "^8.29.0",
+    "eslint-config-prettier": "^8.5.0",
+    "jest": "^29.3.1",
+    "lint-staged": "^13.1.0",
+    "prettier-standard": "^16.4.1",
+    "rimraf": "^3.0.2",
+    "rollup": "^3.18.0",
+    "ts-jest": "^29.0.5",
+    "typescript": "^4.9.4"
+  }
+}

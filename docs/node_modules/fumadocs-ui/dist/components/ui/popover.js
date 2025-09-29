@@ -1,0 +1,11 @@
+'use client';
+import { jsx as _jsx } from "react/jsx-runtime";
+import * as PopoverPrimitive from '@radix-ui/react-popover';
+import * as React from 'react';
+import { cn } from '../../utils/cn.js';
+const Popover = PopoverPrimitive.Root;
+const PopoverTrigger = PopoverPrimitive.Trigger;
+const PopoverContent = React.forwardRef(({ className, align = 'center', sideOffset = 4, ...props }, ref) => (_jsx(PopoverPrimitive.Portal, { children: _jsx(PopoverPrimitive.Content, { ref: ref, align: align, sideOffset: sideOffset, side: "bottom", className: cn('z-50 origin-(--radix-popover-content-transform-origin) min-w-[240px] max-w-[98vw] rounded-xl border bg-fd-popover/60 backdrop-blur-lg p-2 text-sm text-fd-popover-foreground shadow-lg focus-visible:outline-none data-[state=closed]:animate-fd-popover-out data-[state=open]:animate-fd-popover-in', className), ...props }) })));
+PopoverContent.displayName = PopoverPrimitive.Content.displayName;
+const PopoverClose = PopoverPrimitive.PopoverClose;
+export { Popover, PopoverTrigger, PopoverContent, PopoverClose };

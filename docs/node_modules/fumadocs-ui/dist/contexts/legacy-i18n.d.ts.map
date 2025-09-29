@@ -1,0 +1,1 @@
+{"version":3,"file":"legacy-i18n.d.ts","sourceRoot":"","sources":["../../src/contexts/legacy-i18n.tsx"],"names":[],"mappings":"AAEA,OAAO,KAAK,EAAE,iBAAiB,EAAE,MAAM,iBAAiB,CAAC;AAMzD;;GAEG;AACH,wBAAgB,YAAY,CAAC,EAC3B,OAAY,EACZ,MAAM,EACN,QAAQ,EAAE,SAAS,EACnB,cAA0B,EAC1B,GAAG,KAAK,EACT,EAAE,iBAAiB,GAAG;IACrB;;OAEG;IACH,QAAQ,CAAC,EAAE,iBAAiB,CAAC,gBAAgB,CAAC,CAAC;CAChD,2CAsCA"}
