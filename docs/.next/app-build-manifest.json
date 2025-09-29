@@ -1,22 +1,37 @@
 {
   "pages": {
+    "/_not-found/page": [
+      "static/chunks/webpack-464e3684c37ee9fd.js",
+      "static/chunks/4bd1b696-c023c6e3521b1417.js",
+      "static/chunks/255-1ab572061d171c5d.js",
+      "static/chunks/main-app-33e760583cd7fcf0.js",
+      "static/chunks/app/_not-found/page-a22746fbcdeccd06.js"
+    ],
+    "/layout": [
+      "static/chunks/webpack-464e3684c37ee9fd.js",
+      "static/chunks/4bd1b696-c023c6e3521b1417.js",
+      "static/chunks/255-1ab572061d171c5d.js",
+      "static/chunks/main-app-33e760583cd7fcf0.js",
+      "static/css/cae65b36c752dd73.css",
+      "static/chunks/709-02c6e88f5a476814.js",
+      "static/chunks/373-9500b4e20f2d019f.js",
+      "static/chunks/app/layout-5a1afc017d554729.js"
+    ],
+    "/llms-full.txt/route": [
+      "static/chunks/webpack-464e3684c37ee9fd.js",
+      "static/chunks/4bd1b696-c023c6e3521b1417.js",
+      "static/chunks/255-1ab572061d171c5d.js",
+      "static/chunks/main-app-33e760583cd7fcf0.js",
+      "static/chunks/app/llms-full.txt/route-d9c96241948482fd.js"
+    ],
     "/[[...slug]]/page": [
-      "static/chunks/[root-of-the-server]__0785f11c._.css",
-      "static/chunks/node_modules_fumadocs-ui_dist_components_dialog_search-default_921dd5c8.js",
-      "static/chunks/node_modules_195063ef._.js",
-      "static/chunks/src_app_layout_tsx_0a548d63._.js",
-      "static/chunks/node_modules_next_dist_client_components_builtin_global-error_e88f9c80.js",
-      "static/chunks/node_modules_1cdcb622._.js",
-      "static/chunks/src_app_[[___slug]]_page_tsx_e88f9c80._.js",
-      "static/chunks/[turbopack]_browser_dev_hmr-client_hmr-client_ts_57d40746._.js",
-      "static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js",
-      "static/chunks/node_modules_next_dist_compiled_next-devtools_index_a9cb0712.js",
-      "static/chunks/node_modules_next_dist_compiled_5150ccfd._.js",
-      "static/chunks/node_modules_next_dist_client_cf1d9188._.js",
-      "static/chunks/node_modules_next_dist_b0daae9a._.js",
-      "static/chunks/node_modules_@swc_helpers_cjs_b3dc30d6._.js",
-      "static/chunks/_a0ff3932._.js",
-      "static/chunks/turbopack-_cdba956c._.js"
+      "static/chunks/webpack-464e3684c37ee9fd.js",
+      "static/chunks/4bd1b696-c023c6e3521b1417.js",
+      "static/chunks/255-1ab572061d171c5d.js",
+      "static/chunks/main-app-33e760583cd7fcf0.js",
+      "static/chunks/709-02c6e88f5a476814.js",
+      "static/chunks/159-6cfe1553c075387c.js",
+      "static/chunks/app/[[...slug]]/page-58835065400abb98.js"
     ]
   }
 }

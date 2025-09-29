@@ -48,6 +48,9 @@ jobs:
         env:
           NODE_ENV: production
           
+      - name: Add .nojekyll file
+        run: touch ./docs/out/.nojekyll
+          
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

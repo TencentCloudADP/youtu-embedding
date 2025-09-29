@@ -1,4 +1,4 @@
-# Youtu-Embedding Docs (/)
+# Introduction (/)
 
 ## 🎯 Brief Introduction
 
@@ -19,9 +19,49 @@ We have released our first model version on Hugging Face. It is a 2 billion (2B)
 | :----------------- | :--------: | :--------: | :-------------: | :---------------------------------------------------------------------------------- |
 | Youtu-Embedding-V1 |     2B     |    2048    |        8K       | [Youtu-RAG/Youtu-Embedding-V1](https://huggingface.co/Youtu-RAG/Youtu-Embedding-V1) |
 
-<a id="quickstart" />
+## 🚀 Quick Start & Train Model
 
-## 🚀 Quickly Start Inference
+import { Cards, Card } from 'fumadocs-ui/components/card';
+
+<Cards>
+  <Card href="/quickstart" title="🚀 Quick Start Inference" description="Generate embeddings via our official API for ease of use or run the model locally for full control." />
+
+  <Card href="/fine-tuning-framework" title="💡 Fine-tuning Framework" description="Our novel Collaborative-Discriminative Fine-tuning Framework designed to overcome multi-task optimization challenges." />
+</Cards>
+
+## 📊 CMTEB
+
+Youtu-Embedding demonstrates superior performance across all seven task categories on the CMTEB benchmark and achieves the highest overall average score. We present the results of the latest version of the model as follows:
+
+| Model                       | Mean(Task) | Mean(Type) | Class. | Clust. | Pair Class. | Rerank. | Retr. |  STS  |
+| :-------------------------- | :--------- | :--------- | :----: | :----: | :---------: | :-----: | :---: | :---: |
+| gte-Qwen2-1.5B-instruct     | 67.12      | 67.79      |  72.53 |  54.61 |    79.50    |  68.21  | 71.86 | 60.05 |
+| bge-multilingual-gemma2     | 67.64      | 68.52      |  75.31 |  59.30 |    86.67    |  68.28  | 73.73 | 55.19 |
+| ritrieve\_zh\_v1            | 72.71      | 73.85      |  76.88 |  66.50 |    85.98    |  72.86  | 76.97 | 63.92 |
+| Qwen3-Embedding-4B          | 72.27      | 73.51      |  75.46 |  77.89 |    83.34    |  66.05  | 77.03 | 61.26 |
+| Qwen3-Embedding-8B          | 73.84      | 75.00      |  76.97 |  80.08 |    84.23    |  66.99  | 78.21 | 63.53 |
+| Conan-embedding-v2          | 74.24      | 75.99      |  76.47 |  68.84 |    92.44    |  74.41  | 78.31 | 65.48 |
+| Seed1.6-embedding           | 75.63      | 76.68      |  77.98 |  73.11 |    88.71    |  71.65  | 79.69 | 68.94 |
+| QZhou-Embedding             | 76.99      | 78.58      |  79.99 |  70.91 |    95.07    |  74.85  | 78.80 | 71.89 |
+| **Youtu-Embedding-V1-0917** | **77.60**  | **78.85**  |  78.04 |  79.67 |    89.69    |  73.85  | 80.95 | 70.91 |
+
+## 🎉 Citation
+
+If you find our work useful in your research, please consider citing our paper:
+
+```bash
+@misc{zhang2025codiemb,
+  title={CoDiEmb: A Collaborative yet Distinct Framework for Unified Representation Learning in Information Retrieval and Semantic Textual Similarity},
+  author={Zhang, Bowen and Song, Zixin and Chen, Chunquan and Zhang, Qian-Wen and Yin, Di and Sun, Xing},
+  year={2025},
+  eprint={2508.11442},
+  archivePrefix={arXiv},
+  url={https://arxiv.org/abs/2508.11442},
+}
+```
+
+
+# Quickly Start Inference (/quick-start)
 
 You can generate embeddings in two ways: via our official API for ease of use or by running the model locally for full control.
 
@@ -105,6 +145,9 @@ pip install llama-index==0.14.2 llama-index-embeddings-huggingface==0.6.1 senten
 
 * See this example: [`usage/llamaindex_embedding.py`](usage/llamaindex_embedding.py)
 
+
+# Train Model (/train)
+
 ## 💡 Fine-tuning Framework
 
 We provide our novel **Collaborative-Discriminative Fine-tuning Framework**, designed to overcome the challenges of jointly optimizing different text embedding tasks. By systematically decoupling tasks, we introduce several key innovations to achieve highly efficient unified representation learning.
@@ -151,40 +194,3 @@ bash train_youtuemb.sh
 #### 3. Evaluation
 
 The code for reproducing the following results is available in `evaluation/`.
-
-## 📊 CMTEB
-
-Youtu-Embedding demonstrates superior performance across all seven task categories on the CMTEB benchmark and achieves the highest overall average score. We present the results of the latest version of the model as follows:
-
-| Model                       | Mean(Task) | Mean(Type) | Class. | Clust. | Pair Class. | Rerank. | Retr. |  STS  |
-| :-------------------------- | :--------- | :--------- | :----: | :----: | :---------: | :-----: | :---: | :---: |
-| gte-Qwen2-1.5B-instruct     | 67.12      | 67.79      |  72.53 |  54.61 |    79.50    |  68.21  | 71.86 | 60.05 |
-| bge-multilingual-gemma2     | 67.64      | 68.52      |  75.31 |  59.30 |    86.67    |  68.28  | 73.73 | 55.19 |
-| ritrieve\_zh\_v1            | 72.71      | 73.85      |  76.88 |  66.50 |    85.98    |  72.86  | 76.97 | 63.92 |
-| Qwen3-Embedding-4B          | 72.27      | 73.51      |  75.46 |  77.89 |    83.34    |  66.05  | 77.03 | 61.26 |
-| Qwen3-Embedding-8B          | 73.84      | 75.00      |  76.97 |  80.08 |    84.23    |  66.99  | 78.21 | 63.53 |
-| Conan-embedding-v2          | 74.24      | 75.99      |  76.47 |  68.84 |    92.44    |  74.41  | 78.31 | 65.48 |
-| Seed1.6-embedding           | 75.63      | 76.68      |  77.98 |  73.11 |    88.71    |  71.65  | 79.69 | 68.94 |
-| QZhou-Embedding             | 76.99      | 78.58      |  79.99 |  70.91 |    95.07    |  74.85  | 78.80 | 71.89 |
-| **Youtu-Embedding-V1-0917** | **77.60**  | **78.85**  |  78.04 |  79.67 |    89.69    |  73.85  | 80.95 | 70.91 |
-
-## 🎉 Citation
-
-If you find our work useful in your research, please consider citing our paper:
-
-
-# Components (/test)
-
-## Code Block
-
-```js
-console.log('Hello World');
-```
-
-## Cards
-
-<Cards>
-  <Card title="Learn more about Next.js" href="https://nextjs.org/docs" />
-
-  <Card title="Learn more about Fumadocs" href="https://fumadocs.vercel.app" />
-</Cards>
