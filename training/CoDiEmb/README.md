@@ -1,0 +1,3 @@
+This repository provides training scripts for four text embedding model architectures: **youtuemb**, **minicpm**, **bge**, and **e5**.
+
+This project was developed by building upon the excellent work from the following open-source projects. We extend our sincere gratitude to their authors and contributors: [ContextualAI/gritlm](https://github.com/ContextualAI/gritlm), [FlagOpen/FlagEmbedding](https://github.com/FlagOpen/FlagEmbedding), and [embeddings-benchmark/mteb](https://github.com/embeddings-benchmark/mteb).
