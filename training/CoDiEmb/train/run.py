@@ -100,7 +100,7 @@ def normalize_dataset_features(dataset):
     return dataset.map(convert_types, features=features)
 
 
-def process_dataset(data_args, training_args, num_samples, ds_name_to_samples, task_data):
+def process_dataset(data_args, training_args, num_samples, ds_name_to_samples, task_data, tokenizer=None):
     data_files = (
         [
             os.path.join(task_data, x)
@@ -161,9 +161,9 @@ def process_dataset(data_args, training_args, num_samples, ds_name_to_samples, t
     return task_ds, ds_name_to_samples
 
 
-def load_ir_train_data(data_args, training_args, num_samples, ds_name_to_samples):
+def load_ir_train_data(data_args, training_args, num_samples, ds_name_to_samples, tokenizer=None):
     if data_args.ir_train_data:
-        ir_ds, ds_name_to_samples = process_dataset(data_args, training_args, num_samples, ds_name_to_samples, data_args.ir_train_data)
+        ir_ds, ds_name_to_samples = process_dataset(data_args, training_args, num_samples, ds_name_to_samples, data_args.ir_train_data, tokenizer)
         ir_lens = [len(t) for t in ir_ds]
 
         ir_ds = datasets.concatenate_datasets(ir_ds)
@@ -176,9 +176,9 @@ def load_ir_train_data(data_args, training_args, num_samples, ds_name_to_samples
     return ir_ds, ir_lens, ds_name_to_samples
 
 
-def load_sts_train_data(data_args, training_args, num_samples, ds_name_to_samples):
+def load_sts_train_data(data_args, training_args, num_samples, ds_name_to_samples, tokenizer=None):
     if data_args.sts_train_data:
-        sts_ds, ds_name_to_samples = process_dataset(data_args, training_args, num_samples, ds_name_to_samples, data_args.sts_train_data)
+        sts_ds, ds_name_to_samples = process_dataset(data_args, training_args, num_samples, ds_name_to_samples, data_args.sts_train_data, tokenizer)
         sts_lens = [len(t) for t in sts_ds]
 
         sts_ds = datasets.concatenate_datasets(sts_ds)
@@ -191,7 +191,7 @@ def load_sts_train_data(data_args, training_args, num_samples, ds_name_to_sample
     return sts_ds, sts_lens, ds_name_to_samples
 
 
-def load_train_data(data_args, training_args):
+def load_train_data(data_args, training_args, tokenizer=None):
     num_samples = None
     ds_name_to_samples = {}
 
@@ -202,8 +202,8 @@ def load_train_data(data_args, training_args):
         assert data_args.ir_train_data and data_args.sts_train_data,  \
             "Dynamic sampler requires both ir_train_data and sts_train_data to be provided."
 
-    ir_ds, ir_lens, ds_name_to_samples = load_ir_train_data(data_args, training_args, num_samples, ds_name_to_samples)
-    sts_ds, sts_lens, ds_name_to_samples = load_sts_train_data(data_args, training_args, num_samples, ds_name_to_samples)
+    ir_ds, ir_lens, ds_name_to_samples = load_ir_train_data(data_args, training_args, num_samples, ds_name_to_samples, tokenizer)
+    sts_ds, sts_lens, ds_name_to_samples = load_sts_train_data(data_args, training_args, num_samples, ds_name_to_samples, tokenizer)
 
     ds_embedding_lens.extend(ir_lens)
     ds_types.extend(["ir"] * len(ir_lens))
@@ -270,7 +270,7 @@ def main():
     )
     logger.info("Config: %s", config)
 
-    ds, ds_types, ds_embedding_lens = load_train_data(data_args, training_args)
+    ds, ds_types, ds_embedding_lens = load_train_data(data_args, training_args, tokenizer)
 
     model = TrainModel(
         model_name_or_path=model_args.model_name_or_path,
