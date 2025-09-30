@@ -5,7 +5,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Paper](https://img.shields.io/badge/Paper-Latest-blue.svg)](https://arxiv.org/abs/2508.11442)
 [![GitHub](https://img.shields.io/badge/GitHub-Tencent-blue.svg)](https://github.com/TencentCloudADP/youtu-embedding)
-[![Huggingface](https://img.shields.io/badge/Huggingface-YoutuRAG-blue)](https://huggingface.co/tencent/Youtu-Embedding)
+[![Huggingface](https://img.shields.io/badge/Huggingface-Youtu-blue)](https://huggingface.co/tencent/Youtu-Embedding)
 [![WeChat Community](https://img.shields.io/badge/Community-WeChat-32CD32)](assets/wechat_qr.png)
 [![Discord Community](https://img.shields.io/badge/Community-Discord-8A2BE2)](https://discord.gg/dwHuBUKkxw)
 
