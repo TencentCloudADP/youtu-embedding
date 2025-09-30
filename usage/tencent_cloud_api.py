@@ -14,7 +14,7 @@ from tencentcloud.lkeap.v20240522 import lkeap_client, models
 
 def encode(client, inputs, is_query=False):
     if is_query:
-        instruction = "Instruction: Given a search query, retrieve web passages that answer the question \nQuery: "
+        instruction = "Instruction: Given a search query, retrieve passages that answer the question \nQuery:"
     else:
         instruction = ""
 
@@ -38,12 +38,12 @@ secret_key = os.getenv("TENCENTCLOUD_SECRET_KEY")
 cred = credential.Credential(secret_id, secret_key)
 
 httpProfile = HttpProfile()
-httpProfile.endpoint = "lkeap.test.tencentcloudapi.com"
+httpProfile.endpoint = "lkeap.ap-guangzhou.tencentcloudapi.woa.com"
 
 clientProfile = ClientProfile()
 clientProfile.httpProfile = httpProfile
 client = lkeap_client.LkeapClient(cred, "ap-guangzhou", clientProfile)
-model_name = "youtu-embedding-v1"
+model_name = "youtu-embedding-llm-v1"
 
 inputs = ["Regular exercise is the key to staying healthy."]
 embeddings = encode(client, inputs, is_query=False)
