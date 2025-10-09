@@ -183,7 +183,7 @@ Youtu-Embedding demonstrates superior performance across all seven task categori
 | Conan-embedding-v2      | 1.4B | 74.24              | 75.99              | 76.47  | 68.84  | 92.44       | 74.41   | 78.31  | 65.48 |
 | Seed1.6-embedding       | - | 75.63              | 76.68              | 77.98  | 73.11  | 88.71       | 71.65   | 79.69  | 68.94 |
 | QZhou-Embedding         | 7B | 76.99              | 78.58              | 79.99  | 70.91  | 95.07       | 74.85   | 78.80  | 71.89 |
-| **Youtu-Embedding-V1** | 2B | **77.46** | **78.74** | 78.04 | 79.67 | 89.69 | 73.85 | 80.95 | 70.28 |
+| **Youtu-Embedding-V1** | 2B | **77.58** | **78.86** | 78.65 | 84.27 | 86.12 | 75.10 | 80.21 | 68.82 |
 
 > **Note**: Comparative scores are based from the MTEB [leaderboard](https://huggingface.co/spaces/mteb/leaderboard), recorded on September 28, 2025.
 
