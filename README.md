@@ -213,9 +213,3 @@ If you find our work useful in your research, please consider citing our paper:
   url={https://arxiv.org/abs/2508.11442},
 }
 ```
-
----
-
-## Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=TencentCloudADP/youtu-embedding&type=Date)](https://www.star-history.com/#TencentCloudADP/youtu-embedding)
