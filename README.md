@@ -22,7 +22,7 @@
 
 The core advantages of Youtu-Embedding can be summarized as follows:
 
-  - **🏆 State-of-the-Art Performance**: Achieved a top score of **77.46**  on the authoritative Chinese text embedding benchmark CMTEB (as of Sep 2025), proving its powerful representation capabilities.
+  - **🏆 State-of-the-Art Performance**: Achieved a top score of **77.58**  on the authoritative Chinese text embedding benchmark CMTEB (as of Sep 2025), proving its powerful representation capabilities.
 
   - **🧠 Sophisticated Three-Stage Training:** We pioneered a "LLM-based Pre-training → Weakly-supervised Alignment → Collaborative-Discriminative Fine-tuning" pipeline, which systematically distills the broad knowledge of large language models into the specialized discriminative power required for embedding tasks.
 
