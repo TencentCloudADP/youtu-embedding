@@ -108,14 +108,14 @@ python test_transformers_online_macos.py
 
 - 仅使用本地模型（例如 ./Youtu-Embedding）：
 ```bash
-python test_transformers_online_local.py
+python test_transformers_local.py
 ```
 
 这些脚本会：加载模型、对示例查询与段落进行编码，并打印相似度分数（按相关性排序，最佳匹配一目了然）。
 
 #### 示例输出（Sample Output）
 ```text
-nv/bin/python /Users/pro/Desktop/youtu-embedding/test_transformers_online_local.py
+nv/bin/python /Users/pro/Desktop/youtu-embedding/test_transformers_local.py
 Loading checkpoint shards: 100%|███████████████████████████████| 2/2 [00:00<00:00, 28.64it/s]
 Model loaded: ./Youtu-Embedding
 Device: mps

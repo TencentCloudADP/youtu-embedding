@@ -108,14 +108,14 @@ python test_transformers_online_macos.py
 
 - Local-only (use locally downloaded model in ./Youtu-Embedding):
 ```bash
-python test_transformers_online_local.py
+python test_transformers_local.py
 ```
 
 These scripts will: load the model, encode a demo query and passages, then print similarity scores (sorted so the best match is obvious).
 
 #### Sample Output
 ```text
-nv/bin/python /Users/pro/Desktop/youtu-embedding/test_transformers_online_local.py
+nv/bin/python /Users/pro/Desktop/youtu-embedding/test_transformers_local.py
 Loading checkpoint shards: 100%|███████████████████████████████| 2/2 [00:00<00:00, 28.64it/s]
 Model loaded: ./Youtu-Embedding
 Device: mps
