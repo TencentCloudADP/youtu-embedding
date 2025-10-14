@@ -1,0 +1,25 @@
+# CodeBuddy IDE
+.codebuddy/
+
+# Python virtual environment
+youtu-env/
+
+# Model files
+Youtu-Embedding/
+youtu-model/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# System files
+.DS_Store
+.python-version
+
+# Logs
+*.log
+
+# IDE
+.vscode/
+.idea/
