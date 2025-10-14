@@ -65,18 +65,98 @@ pip install --upgrade tencentcloud-sdk-python
 
 ### 选项 2：💻 本地化自托管推理
 
-在您自己的机器上运行模型可以赋予您完全的控制权，非常适合离线使用、自定义或数据隐私优先的场景。以下是几种主流的入门方法。
+在您自己的机器上运行模型可以赋予您完全的控制权，非常适合离线使用、自定义或数据隐私优先的场景。下面提供一套可直接执行的步骤，并配合本仓库内的预置测试脚本。
 
-#### 1. 使用自定义 `LLMEmbeddingModel` 类
+#### 1）快速开始（仓库 + 环境）
+```bash
+# 克隆仓库
+git clone https://github.com/TencentCloudADP/youtu-embedding.git
+cd youtu-embedding
 
-如果需要更专业的实现或查看我们的直接封装，您可以使用 `LLMEmbeddingModel` 类。
+# 创建并激活虚拟环境
+python -m venv youtu-env
+source youtu-env/bin/activate  # Windows: youtu-env\Scripts\activate
 
-  * 请在此处查看完整的示例脚本：[`usage/infer_llm_embedding.py`](usage/infer_llm_embedding.py)。
+# 安装依赖
+pip install -U pip
+pip install "transformers==4.51.3" torch numpy scipy scikit-learn huggingface_hub
+```
 
-#### 2. 使用 `sentence-transformers`
+#### 2）获取模型权重（二选一）
+- 方式 A：使用 Hugging Face 命令行下载到本地目录
+```bash
+huggingface-cli download tencent/Youtu-Embedding --local-dir ./youtu-model
+```
+
+- 方式 B：直接克隆模型仓库
+```bash
+git clone https://huggingface.co/tencent/Youtu-Embedding ./Youtu-Embedding
+```
+
+#### 3）运行预置测试脚本（推荐）
+根据你当前的运行环境选择脚本。本仓库已内置以下脚本：
+
+- CUDA 环境：
+```bash
+python test_transformers_online_cuda.py
+```
+
+- macOS（Apple Silicon 的 MPS 或自动回退 CPU）：
+```bash
+python test_transformers_online_macos.py
+```
+
+- 仅使用本地模型（例如 ./Youtu-Embedding）：
+```bash
+python test_transformers_online_local.py
+```
+
+这些脚本会：加载模型、对示例查询与段落进行编码，并打印相似度分数（按相关性排序，最佳匹配一目了然）。
+
+#### 示例输出（Sample Output）
+```text
+nv/bin/python /Users/pro/Desktop/youtu-embedding/test_transformers_online_local.py
+Loading checkpoint shards: 100%|███████████████████████████████| 2/2 [00:00<00:00, 28.64it/s]
+Model loaded: ./Youtu-Embedding
+Device: mps
+
+================================================================================
+🔍 Query: What's the weather like?
+================================================================================
+
+🥇 BEST MATCH
+   Score: 0.4465 | ⚡ Moderately Relevant
+   Visual: [█████████████░░░░░░░░░░░░░░░░░] 44.7%
+   Content: "The weather is lovely today."
+
+🥈 2nd BEST
+   Score: 0.3124 | ⚡ Moderately Relevant
+   Visual: [█████████░░░░░░░░░░░░░░░░░░░░░] 31.2%
+   Content: "It's so sunny outside!"
+
+🥉 3rd BEST
+   Score: 0.0688 | ❌ Not Relevant
+   Visual: [██░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 6.9%
+   Content: "Would you want to play a game?"
+
+#4
+   Score: 0.0304 | ❌ Not Relevant
+   Visual: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 3.0%
+   Content: "He drove to the stadium."
+
+================================================================================
+
+Raw scores: [[0.4465198516845703, 0.31240472197532654, 0.03040437400341034, 0.06884326785802841]]
+```
+
+#### 4）使用自定义 `LLMEmbeddingModel` 类
+如果需要更专业的实现或查看我们的直接封装，你可以使用 `LLMEmbeddingModel` 类。
+  * 完整示例脚本：[`usage/infer_llm_embedding.py`](usage/infer_llm_embedding.py)
+
+#### 5）使用 `sentence-transformers`
+如果你偏好 `sentence-transformers`，可以通过模型 ID 或本地目录加载相同模型。
 
 **📦 安装**
-
 ```bash
 pip install sentence-transformers==5.1.0
 ```
@@ -100,33 +180,28 @@ similarities = model.similarity(queries_embeddings, passages_embeddings)
 print(similarities)
 ```
 
-#### 3. 使用 `LangChain` 🦜
-
-轻松将模型集成到您的 **LangChain** 应用中，例如 RAG（检索增强生成）管道。
+#### 6）使用 LangChain 🦜
+如果你希望在检索/问答链路中使用本模型作为嵌入器，可以参考本仓库提供的示例脚本。
 
 **📦 安装**
-
 ```bash
 pip install langchain==0.3.27 langchain-community==0.3.29 langchain-huggingface==0.3.1 sentence-transformers==5.1.0 faiss-cpu==1.11.0
 ```
 
-**⚙️ 使用方法**
+**📄 示例脚本**
+- 请参阅：`usage/langchain_embedding.py`
 
-  * 请参阅此示例：[`usage/langchain_embedding.py`](usage/langchain_embedding.py)
 
-#### 4. 使用 `LlamaIndex` 🦙
-
-这非常适合将模型集成到您的 **LlamaIndex** 搜索和检索系统中。
+#### 7）使用 LlamaIndex 🦙
+如果你使用 LlamaIndex 进行文档索引与检索，也可以集成本模型作为嵌入器。
 
 **📦 安装**
-
 ```bash
 pip install llama-index==0.14.2 llama-index-embeddings-huggingface==0.6.1 sentence-transformers==5.1.0 llama-index-vector-stores-faiss==0.5.1
 ```
 
-**⚙️ 使用方法**
-
-  * 请参阅此示例：[`usage/llamaindex_embedding.py`](usage/llamaindex_embedding.py)
+**📄 示例脚本**
+- 请参阅：`usage/llamaindex_embedding.py`
 
 
 ## 💡 微调训练框架
@@ -204,4 +279,3 @@ bash train_youtuemb.sh
   archivePrefix={arXiv},
   url={https://arxiv.org/abs/2508.11442},
 }
-```

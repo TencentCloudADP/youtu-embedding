@@ -65,18 +65,103 @@ pip install --upgrade tencentcloud-sdk-python
  * Please see the script in [`usage/tencent_cloud_api.py`](usage/tencent_cloud_api.py).
 
 ### Option 2: 💻 Locally with Self-Hosted Inference
-Running the model on your own machine gives you full control, making it perfect for offline use, customization, or when data privacy is a priority. Here are a few popular ways to get started.
+Running the model on your own machine gives you full control, making it perfect for offline use, customization, or when data privacy is a priority. Below is a practical, step-by-step guide using this repository’s prebuilt scripts.
 
-#### 1. Using the Custom `LLMEmbeddingModel` Class
+#### 1) Quick Start (Repo + Environment)
+```bash
+# Clone this repo
+git clone https://github.com/TencentCloudADP/youtu-embedding.git
+cd youtu-embedding
+
+# Create and activate a virtual environment
+python -m venv youtu-env
+source youtu-env/bin/activate  # Windows: youtu-env\Scripts\activate
+
+# Install dependencies
+pip install -U pip
+pip install "transformers==4.51.3" torch numpy scipy scikit-learn huggingface_hub
+```
+
+#### 2) Get the Model Weights (choose one)
+- Option A: Download from Hugging Face to the local folder
+```bash
+huggingface-cli download tencent/Youtu-Embedding --local-dir ./youtu-model
+```
+
+- Option B: Clone the model repo
+```bash
+git clone https://huggingface.co/tencent/Youtu-Embedding ./Youtu-Embedding
+```
+
+#### 3) Run the Prebuilt Test Scripts (recommended)
+Pick one that matches your environment. All scripts are included in this repo.
+
+- CUDA systems:
+```bash
+python test_transformers_online_cuda.py
+```
+
+- macOS (Apple Silicon with MPS or CPU fallback):
+```bash
+python test_transformers_online_macos.py
+```
+
+- Local-only (use locally downloaded model in ./Youtu-Embedding):
+```bash
+python test_transformers_online_local.py
+```
+
+These scripts will: load the model, encode a demo query and passages, then print similarity scores (sorted so the best match is obvious).
+
+#### Sample Output
+```text
+nv/bin/python /Users/pro/Desktop/youtu-embedding/test_transformers_online_local.py
+Loading checkpoint shards: 100%|███████████████████████████████| 2/2 [00:00<00:00, 28.64it/s]
+Model loaded: ./Youtu-Embedding
+Device: mps
+
+================================================================================
+🔍 Query: What's the weather like?
+================================================================================
+
+🥇 BEST MATCH
+   Score: 0.4465 | ⚡ Moderately Relevant
+   Visual: [█████████████░░░░░░░░░░░░░░░░░] 44.7%
+   Content: "The weather is lovely today."
+
+🥈 2nd BEST
+   Score: 0.3124 | ⚡ Moderately Relevant
+   Visual: [█████████░░░░░░░░░░░░░░░░░░░░░] 31.2%
+   Content: "It's so sunny outside!"
+
+🥉 3rd BEST
+   Score: 0.0688 | ❌ Not Relevant
+   Visual: [██░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 6.9%
+   Content: "Would you want to play a game?"
+
+#4
+   Score: 0.0304 | ❌ Not Relevant
+   Visual: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 3.0%
+   Content: "He drove to the stadium."
+
+================================================================================
+
+Raw scores: [[0.4465198516845703, 0.31240472197532654, 0.03040437400341034, 0.06884326785802841]]
+```
+
+#### 4) Using the Custom `LLMEmbeddingModel` Class
 For a more specialized implementation or to see our direct wrapper, you can use the `LLMEmbeddingModel` class.
 
   * See the complete example script here: [`usage/infer_llm_embedding.py`](usage/infer_llm_embedding.py).
 
-#### 2. Using `sentence-transformers`
+#### 5) Using `sentence-transformers`
+If you prefer `sentence-transformers`, you can load the same model by ID or from a local folder.
+
 **📦 Installation**
 ```bash
 pip install sentence-transformers==5.1.0
 ```
+
 **⚙️ Usage**
 ```python
 from sentence_transformers import SentenceTransformer
@@ -120,8 +205,6 @@ pip install llama-index==0.14.2 llama-index-embeddings-huggingface==0.6.1 senten
 **⚙️ Usage**
 
  * See this example:  [`usage/llamaindex_embedding.py`](usage/llamaindex_embedding.py)
-
-
 
 ## 💡 Fine-tuning Framework
 
@@ -213,9 +296,3 @@ If you find our work useful in your research, please consider citing our paper:
   url={https://arxiv.org/abs/2508.11442},
 }
 ```
-
----
-
-## Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=TencentCloudADP/youtu-embedding&type=Date)](https://www.star-history.com/#TencentCloudADP/youtu-embedding)
