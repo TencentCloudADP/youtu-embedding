@@ -1,0 +1,499 @@
+---
+title: Quick Start
+description: From zero to running, quickly load and test Tencent Youtu's Youtu-Embedding model locally.
+sidebar_position: 2
+---
+
+## 1. System and Environment Requirements
+
+| Item | Requirement |
+|------|------|
+| Python | 3.10 and above |
+| Operating System | macOS or Linux |
+| Memory | Recommended 16GB or more |
+| Disk Space | Model size approximately 4–8GB |
+
+## 2. Create and Activate Virtual Environment
+
+It's recommended to create a separate Python virtual environment for this project to maintain clean dependencies.
+
+```bash
+# Clone Youtu-Embedding project
+git clone https://github.com/TencentCloudADP/youtu-embedding.git
+cd youtu-embedding
+
+# Check Python version
+python --version
+
+# (If using pyenv, set Python 3.10)
+pyenv local 3.10.14
+
+# Create and activate virtual environment
+python -m venv youtu-env
+source youtu-env/bin/activate
+```
+
+## 3. Install Dependencies
+
+```bash
+pip install -U pip
+pip install "transformers==4.51.3" torch numpy scipy scikit-learn huggingface_hub
+```
+
+**Note**: huggingface_hub is used to download models from Hugging Face.
+
+## 4. Download Model
+
+There are two ways to obtain the model:
+
+### 4.1 Download Model Using Command Line
+
+```bash
+huggingface-cli download tencent/Youtu-Embedding --local-dir ./youtu-model
+```
+
+After download completes, the model will be saved in the `./youtu-model` folder in the current directory.
+
+### 4.2 Clone Model from Repository
+
+You can also manually clone the model repository to pull the Embedding model into your local project.
+
+```bash
+git clone https://huggingface.co/tencent/Youtu-Embedding
+```
+
+## 5. Run Test Scripts
+
+This section provides complete example scripts demonstrating how to load the model using Transformers, compute text embeddings, and output similarity matrices.
+
+### 5.1 Automatically Pull Model Files and Test
+
+Find and run the test script file `test_transformers_online_cuda.py` in the project root directory. It will automatically pull the model to local and process input text for vectorization:
+
+**Note**: This test script requires CUDA environment and good network connectivity.
+
+```python
+import torch
+import numpy as np
+from transformers import AutoModel, AutoTokenizer
+
+
+class LLMEmbeddingModel():
+
+    def __init__(self, 
+                model_name_or_path, 
+                batch_size=128, 
+                max_length=1024, 
+                gpu_id=0):
+        self.model = AutoModel.from_pretrained(model_name_or_path, trust_remote_code=True)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, padding_side="right")
+
+        self.device = torch.device(f"cuda:{gpu_id}")
+        self.model.to(self.device).eval()
+
+        self.max_length = max_length
+        self.batch_size = batch_size
+
+        query_instruction = "Given a search query, retrieve passages that answer the question"
+        if query_instruction:
+            self.query_instruction = f"Instruction: {query_instruction} \nQuery:"
+        else:
+            self.query_instruction = "Query:"
+
+        self.doc_instruction = ""
+        print(f"query instruction: {[self.query_instruction]}\ndoc instruction: {[self.doc_instruction]}")
+
+    def mean_pooling(self, hidden_state, attention_mask):
+        s = torch.sum(hidden_state * attention_mask.unsqueeze(-1).float(), dim=1)
+        d = attention_mask.sum(dim=1, keepdim=True).float()
+        embedding = s / d
+        return embedding
+    
+    @torch.no_grad()
+    def encode(self, sentences_batch, instruction):
+        inputs = self.tokenizer(
+            sentences_batch,
+            padding=True,
+            truncation=True,
+            return_tensors="pt",
+            max_length=self.max_length,
+            add_special_tokens=True,
+        ).to(self.device)
+
+        with torch.no_grad():
+            outputs = self.model(**inputs)
+            last_hidden_state = outputs[0]
+
+            instruction_tokens = self.tokenizer(
+                instruction,
+                padding=False,
+                truncation=True,
+                max_length=self.max_length,
+                add_special_tokens=True,
+            )["input_ids"]
+            if len(np.shape(np.array(instruction_tokens))) == 1:
+                inputs["attention_mask"][:, :len(instruction_tokens)] = 0
+            else:
+                instruction_length = [len(item) for item in instruction_tokens]
+                assert len(instruction) == len(sentences_batch)
+                for idx in range(len(instruction_length)):
+                    inputs["attention_mask"][idx, :instruction_length[idx]] = 0
+
+            embeddings = self.mean_pooling(last_hidden_state, inputs["attention_mask"])
+            embeddings = torch.nn.functional.normalize(embeddings, dim=-1)
+        return embeddings
+
+    def encode_queries(self, queries):
+        queries = queries if isinstance(queries, list) else [queries]
+        queries = [f"{self.query_instruction}{query}" for query in queries]
+        return self.encode(queries, self.query_instruction)
+
+    def encode_passages(self, passages):
+        passages = passages if isinstance(passages, list) else [passages]
+        passages = [f"{self.doc_instruction}{passage}" for passage in passages]
+        return self.encode(passages, self.doc_instruction)
+
+    def compute_similarity_for_vectors(self, q_reps, p_reps):
+        if len(p_reps.size()) == 2:
+            return torch.matmul(q_reps, p_reps.transpose(0, 1))
+        return torch.matmul(q_reps, p_reps.transpose(-2, -1))
+
+    def compute_similarity(self, queries, passages):
+        q_reps = self.encode_queries(queries)
+        p_reps = self.encode_passages(passages)
+        scores = self.compute_similarity_for_vectors(q_reps, p_reps)
+        scores = scores.detach().cpu().tolist()
+        return scores
+
+
+queries = ["What's the weather like?"]
+passages = [
+    'The weather is lovely today.',
+    "It's so sunny outside!",
+    'He drove to the stadium.'
+]
+
+model_name_or_path = "tencent/Youtu-Embedding"
+model = LLMEmbeddingModel(model_name_or_path)
+scores = model.compute_similarity(queries, passages)
+print(f"scores: {scores}")
+```
+
+To run in macOS environment, find and run the `test_transformers_online_macos.py` test script in the code project:
+
+```python
+import torch
+import numpy as np
+from transformers import AutoModel, AutoTokenizer
+
+
+class LLMEmbeddingModel():
+
+    def __init__(self, 
+                model_name_or_path, 
+                batch_size=128, 
+                max_length=1024, 
+                gpu_id=0):
+        self.model = AutoModel.from_pretrained(model_name_or_path, trust_remote_code=True)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, padding_side="right", trust_remote_code=True)
+
+        # macOS-friendly device selection: CUDA -> MPS -> CPU
+        if torch.cuda.is_available():
+            self.device = torch.device(f"cuda:{gpu_id}")
+        elif torch.backends.mps.is_available():
+            self.device = torch.device("mps")
+        else:
+            self.device = torch.device("cpu")
+        
+        self.model.to(self.device).eval()
+
+        self.max_length = max_length
+        self.batch_size = batch_size
+
+        query_instruction = "Given a search query, retrieve passages that answer the question"
+        if query_instruction:
+            self.query_instruction = f"Instruction: {query_instruction} \nQuery:"
+        else:
+            self.query_instruction = "Query:"
+
+        self.doc_instruction = ""
+        print(f"query instruction: {[self.query_instruction]}\ndoc instruction: {[self.doc_instruction]}")
+        print(f"Using device: {self.device}")
+
+    def mean_pooling(self, hidden_state, attention_mask):
+        s = torch.sum(hidden_state * attention_mask.unsqueeze(-1).float(), dim=1)
+        d = attention_mask.sum(dim=1, keepdim=True).float()
+        embedding = s / d
+        return embedding
+    
+    @torch.no_grad()
+    def encode(self, sentences_batch, instruction):
+        inputs = self.tokenizer(
+            sentences_batch,
+            padding=True,
+            truncation=True,
+            return_tensors="pt",
+            max_length=self.max_length,
+            add_special_tokens=True,
+        )
+        # Move inputs to target device
+        inputs = {k: v.to(self.device) for k, v in inputs.items()}
+
+        with torch.no_grad():
+            outputs = self.model(**inputs)
+            last_hidden_state = outputs[0]
+
+            instruction_tokens = self.tokenizer(
+                instruction,
+                padding=False,
+                truncation=True,
+                max_length=self.max_length,
+                add_special_tokens=True,
+            )["input_ids"]
+            if len(np.shape(np.array(instruction_tokens))) == 1:
+                inputs["attention_mask"][:, :len(instruction_tokens)] = 0
+            else:
+                instruction_length = [len(item) for item in instruction_tokens]
+                assert len(instruction) == len(sentences_batch)
+                for idx in range(len(instruction_length)):
+                    inputs["attention_mask"][idx, :instruction_length[idx]] = 0
+
+            embeddings = self.mean_pooling(last_hidden_state, inputs["attention_mask"])
+            embeddings = torch.nn.functional.normalize(embeddings, dim=-1)
+        return embeddings
+
+    def encode_queries(self, queries):
+        queries = queries if isinstance(queries, list) else [queries]
+        queries = [f"{self.query_instruction}{query}" for query in queries]
+        return self.encode(queries, self.query_instruction)
+
+    def encode_passages(self, passages):
+        passages = passages if isinstance(passages, list) else [passages]
+        passages = [f"{self.doc_instruction}{passage}" for passage in passages]
+        return self.encode(passages, self.doc_instruction)
+
+    def compute_similarity_for_vectors(self, q_reps, p_reps):
+        if len(p_reps.size()) == 2:
+            return torch.matmul(q_reps, p_reps.transpose(0, 1))
+        return torch.matmul(q_reps, p_reps.transpose(-2, -1))
+
+    def compute_similarity(self, queries, passages):
+        q_reps = self.encode_queries(queries)
+        p_reps = self.encode_passages(passages)
+        scores = self.compute_similarity_for_vectors(q_reps, p_reps)
+        scores = scores.detach().cpu().tolist()
+        return scores
+
+
+queries = ["What's the weather like?"]
+passages = [
+    'The weather is lovely today.',
+    "It's so sunny outside!",
+    'He drove to the stadium.'
+]
+
+model_name_or_path = "tencent/Youtu-Embedding"
+model = LLMEmbeddingModel(model_name_or_path)
+scores = model.compute_similarity(queries, passages)
+print(f"scores: {scores}")
+```
+
+After successful execution, the terminal will output vector scores for different results related to the question. Higher scores indicate greater relevance between the answer and the question.
+
+```
+query instruction: ['Instruction: Given a search query, retrieve passages that answer the question \nQuery:']
+doc instruction: ['']
+Using device: mps
+scores: [[0.44651979207992554, 0.31240469217300415, 0.030404280871152878]]
+```
+
+### 5.2 Test Using Local Model
+
+This step follows the previous section (4.2: Clone Model from Repository). Find and run the `test_transformers_local.py` test script in the project:
+
+```python
+import torch
+import numpy as np
+from transformers import AutoModel, AutoTokenizer
+
+
+class LLMEmbeddingModel():
+
+    def __init__(self, 
+                model_name_or_path, 
+                batch_size=128, 
+                max_length=1024, 
+                gpu_id=0):
+        """Local embedding model with automatic device selection"""
+        self.model = AutoModel.from_pretrained(model_name_or_path, trust_remote_code=True)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, padding_side="right", trust_remote_code=True)
+
+        # Device selection: CUDA -> MPS -> CPU
+        if torch.cuda.is_available():
+            self.device = torch.device(f"cuda:{gpu_id}")
+        elif torch.backends.mps.is_available():
+            self.device = torch.device("mps")
+        else:
+            self.device = torch.device("cpu")
+        
+        self.model.to(self.device).eval()
+
+        self.max_length = max_length
+        self.batch_size = batch_size
+
+        query_instruction = "Given a search query, retrieve passages that answer the question"
+        if query_instruction:
+            self.query_instruction = f"Instruction: {query_instruction} \nQuery:"
+        else:
+            self.query_instruction = "Query:"
+
+        self.doc_instruction = ""
+        print(f"Model loaded: {model_name_or_path}")
+        print(f"Device: {self.device}")
+
+    def mean_pooling(self, hidden_state, attention_mask):
+        s = torch.sum(hidden_state * attention_mask.unsqueeze(-1).float(), dim=1)
+        d = attention_mask.sum(dim=1, keepdim=True).float()
+        embedding = s / d
+        return embedding
+
+    @torch.no_grad()
+    def encode(self, sentences_batch, instruction):
+        inputs = self.tokenizer(
+            sentences_batch,
+            padding=True,
+            truncation=True,
+            return_tensors="pt",
+            max_length=self.max_length,
+            add_special_tokens=True,
+        )
+        # Move inputs to device
+        inputs = {k: v.to(self.device) for k, v in inputs.items()}
+
+        with torch.no_grad():
+            outputs = self.model(**inputs)
+            last_hidden_state = outputs[0]
+
+            instruction_tokens = self.tokenizer(
+                instruction,
+                padding=False,
+                truncation=True,
+                max_length=self.max_length,
+                add_special_tokens=True,
+            )["input_ids"]
+            if len(np.shape(np.array(instruction_tokens))) == 1:
+                inputs["attention_mask"][:, :len(instruction_tokens)] = 0
+            else:
+                instruction_length = [len(item) for item in instruction_tokens]
+                assert len(instruction) == len(sentences_batch)
+                for idx in range(len(instruction_length)):
+                    inputs["attention_mask"][idx, :instruction_length[idx]] = 0
+
+            embeddings = self.mean_pooling(last_hidden_state, inputs["attention_mask"])
+            embeddings = torch.nn.functional.normalize(embeddings, dim=-1)
+        return embeddings
+
+    def encode_queries(self, queries):
+        queries = queries if isinstance(queries, list) else [queries]
+        queries = [f"{self.query_instruction}{query}" for query in queries]
+        return self.encode(queries, self.query_instruction)
+
+    def encode_passages(self, passages):
+        passages = passages if isinstance(passages, list) else [passages]
+        passages = [f"{self.doc_instruction}{passage}" for passage in passages]
+        return self.encode(passages, self.doc_instruction)
+
+    def compute_similarity_for_vectors(self, q_reps, p_reps):
+        if len(p_reps.size()) == 2:
+            return torch.matmul(q_reps, p_reps.transpose(0, 1))
+        return torch.matmul(q_reps, p_reps.transpose(-2, -1))
+
+    def compute_similarity(self, queries, passages):
+        q_reps = self.encode_queries(queries)
+        p_reps = self.encode_passages(passages)
+        scores = self.compute_similarity_for_vectors(q_reps, p_reps)
+        scores = scores.detach().cpu().tolist()
+        return scores
+
+    def display_results(self, query, passages, scores):
+        """Display similarity results in a simple format"""
+        print(f"\nQuery: {query}")
+        print("-" * 50)
+        
+        # Sort by similarity score (highest first)
+        ranked_results = list(zip(passages, scores[0]))
+        ranked_results.sort(key=lambda x: x[1], reverse=True)
+        
+        for i, (passage, score) in enumerate(ranked_results, 1):
+            print(f"{i}. Score: {score:.4f} - {passage}")
+        
+        print("-" * 50)
+
+
+def main():
+    queries = ["What's the weather like?"]
+    passages = [
+        'The weather is lovely today.',
+        "It's so sunny outside!",
+        'He drove to the stadium.'
+    ]
+
+    model_name_or_path = "./Youtu-Embedding"
+    model = LLMEmbeddingModel(model_name_or_path)
+    scores = model.compute_similarity(queries, passages)
+    
+    # Display results with enhanced formatting
+    model.display_results(queries[0], passages, scores)
+    
+    # Also show raw scores for reference
+    print(f"\nRaw scores: {scores}")
+
+
+if __name__ == "__main__":
+    main()
+```
+
+Run the script:
+
+```bash
+python test_transformers_local.py
+```
+
+The following result in the terminal indicates successful local model invocation:
+
+```
+Model loaded: ./Youtu-Embedding
+Device: mps
+
+Query: What's the weather like?
+--------------------------------------------------
+1. Score: 0.4465 - The weather is lovely today.
+2. Score: 0.3124 - It's so sunny outside!
+3. Score: 0.0304 - He drove to the stadium.
+--------------------------------------------------
+
+Raw scores: [[0.44651979207992554, 0.31240469217300415, 0.030404280871152878]]
+```
+
+From the results, we can see that answers related to current weather have higher scores and are ranked first.
+
+## 6. Summary
+
+Through the above steps, you can quickly complete locally:
+1. Environment configuration
+2. Model download or reference
+3. Transformers environment initialization
+4. Output text embeddings and similarity results
+
+## 7. Related Scripts
+
+Some scripts are already available in the code repository.
+
+**Related Script Files**:
+- [`test_transformers_online_cuda.py`](https://github.com/TencentCloudADP/youtu-embedding/blob/main/test_transformers_online_cuda.py) - CUDA environment test script
+- [`test_transformers_online_macos.py`](https://github.com/TencentCloudADP/youtu-embedding/blob/main/test_transformers_online_macos.py) - macOS environment test script  
+- [`test_transformers_local.py`](https://github.com/TencentCloudADP/youtu-embedding/blob/main/test_transformers_local.py) - Local model test script
+- [`usage/infer_llm_embedding.py`](https://github.com/TencentCloudADP/youtu-embedding/blob/main/usage/infer_llm_embedding.py) - Wrapper class usage example
+- [`test/test_local_file_embeddings.py`](https://github.com/TencentCloudADP/youtu-embedding/blob/benchmark/test/test_local_file_embeddings.py) - Thousand-character Chinese text test case
+
+

@@ -1,0 +1,101 @@
+---
+title: Youtu-Embedding Introduction
+description: A unified text representation model (Embeddings) for enterprises and developers, covering retrieval, similarity, clustering, re-ranking, classification and other scenarios.
+sidebar_position: 1
+---
+
+## Overview
+
+Youtu-Embedding is a general-purpose text representation model open-sourced by Tencent Youtu Lab. It can be used for various natural language processing tasks including information retrieval (IR), semantic textual similarity (STS), clustering, re-ranking, and classification, balancing performance and ease of use.
+
+## Why Choose Youtu-Embedding
+
+- **Quick Deployment**: The repository includes built-in test scripts and examples, enabling environment setup and inference testing within minutes.
+- **Unified Representation Capability**: Through collaborative-differential learning framework, it balances discriminative ability and generalization across multiple tasks, mitigating negative transfer.
+- **Engineering Friendly**: Supports Hugging Face model loading and provides ecosystem examples like LangChain / LlamaIndex for easy integration into RAG/retrieval systems.
+- **Open and Extensible**: Open-source weights, inference and training code for convenient secondary development and customization.
+
+## Core Capabilities
+
+- **Multi-scenario Adaptation**: Supports unified vector representation for IR / STS / clustering / re-ranking / classification tasks.
+- **High-performance Representation**: Achieves leading results on authoritative benchmarks like CMTEB (as of 2025-09).
+- **Multi-device Support**: Automatic selection of CUDA / macOS MPS / CPU, easy for local and cloud deployment.
+- **Ecosystem Integration**: Built-in LangChain and LlamaIndex examples for quick integration into retrieval workflows.
+
+## Main Components
+
+### 1. Inference
+
+- **Methods**:
+  - Cloud API (using Tencent Cloud SDK for quick deployment)
+  - Local self-hosting (transformers native or sentence-transformers)
+- **Scripts and Examples**:
+  - `test_transformers_online_cuda.py` (CUDA)
+  - `test_transformers_online_macos.py` (macOS MPS/CPU)
+  - `test_transformers_local.py` (local model directory)
+  - `usage/infer_llm_embedding.py` (custom wrapper class LLMEmbeddingModel)
+  - `usage/langchain_embedding.py` (LangChain integration)
+  - `usage/llamaindex_embedding.py` (LlamaIndex integration)
+
+Visit the [code repository](https://github.com/TencentCloudADP/youtu-embedding) to get script example files.
+
+### 2. Training
+
+- **Location**: `training/CoDiEmb`
+- **Features**:
+  - Unified data structure covering IR / STS / classification / re-ranking
+  - Task-differential loss functions (e.g., InfoNCE for IR with multiple positive and hard negative examples; ranking-aware optimization for STS)
+  - Dynamic single-task sampling ensuring clean and stable gradient signals
+- **Evaluation**: See the `evaluation/` directory, [access address](https://github.com/TencentCloudADP/youtu-embedding/tree/main/evaluation).
+
+## Usage Methods
+
+### 1) Cloud API
+
+- Use Tencent Cloud SDK and documentation for authentication and calls
+- Suitable for quick deployment and enterprise compliance
+- [Usage Address](https://cloud.tencent.com/document/product/1772/115343)
+
+### 2) Local/Private Deployment
+
+- Directly load Hugging Face models or local directories
+- Suitable for data privacy-sensitive scenarios or those requiring deep customization
+
+For detailed instructions, please refer to [Quick Start](/docs/en/quick-start).
+
+## Directory and Architecture Overview
+
+| Directory/Component | Description |
+| :-- | :-- |
+| usage | Inference and ecosystem integration examples (API / LangChain / LlamaIndex, etc.) |
+| training | Collaborative-discriminative fine-tuning training framework and scripts |
+| evaluation | Reproducible evaluation and results |
+| youtu-model / Youtu-Embedding | Local model directory (pulled from Hugging Face or cloned) |
+| test_transformers_*.py | Pre-built test scripts for quick validation in different runtime environments |
+
+## Next Steps
+
+After familiarizing yourself with the basic capabilities, proceed to [Quick Start](/docs/en/quick-start) to complete inference and integration locally or via cloud.
+
+Related Links:
+
+<div className="space-y-3">
+  <div className="flex items-center gap-3">
+    <span className="w-6 h-6 bg-gray-200 rounded flex items-center justify-center">G</span>
+    <a href="https://github.com/TencentCloudADP/youtu-embedding" className="hover:underline">
+      GitHub Repository
+    </a>
+  </div>
+  <div className="flex items-center gap-3">
+    <span className="w-6 h-6 bg-yellow-200 rounded flex items-center justify-center">H</span>
+    <a href="https://huggingface.co/tencent/Youtu-Embedding" className="hover:underline">
+      Hugging Face Model
+    </a>
+  </div>
+  <div className="flex items-center gap-3">
+    <span className="w-6 h-6 bg-red-200 rounded flex items-center justify-center">P</span>
+    <a href="https://arxiv.org/abs/2508.11442" className="hover:underline">
+      Academic Paper
+    </a>
+  </div>
+</div>
