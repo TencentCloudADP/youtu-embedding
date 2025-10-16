@@ -1,0 +1,101 @@
+---
+title: Youtu-Embedding 简介
+description: 面向企业与开发者的统一文本表示模型（Embeddings），覆盖检索、相似度、聚类、重排序、分类等场景。
+sidebar_position: 1
+---
+
+## 概览
+
+Youtu-Embedding 是腾讯优图实验室开源的通用文本表示模型。它可用于信息检索（IR）、语义相似度（STS）、聚类、重排序与分类等多种自然语言处理任务，兼顾性能与易用性。
+
+## 为什么选择 Youtu-Embedding
+
+- 快速落地：仓库内置测试脚本与示例，几分钟即可完成环境搭建与推理体验。
+- 统一表示能力：通过协同-差异化学习框架，兼顾多任务的判别能力与泛化能力，缓解负迁移。
+- 工程友好：支持 Hugging Face 模型加载，并提供 LangChain / LlamaIndex 等生态示例，便于集成到 RAG/检索系统。
+- 开放可扩展：开源权重、推理与训练代码，方便二次开发与定制。
+
+## 核心能力
+
+- 多场景适配：支持 IR / STS / 聚类 / 重排序 / 分类等任务的统一向量表示。
+- 高性能表示：在 CMTEB 等权威评测上取得领先（截至 2025-09）。
+- 多设备支持：CUDA / macOS MPS / CPU 自动选择，易于本地与云端部署。
+- 生态集成：内置 LangChain 与 LlamaIndex 示例，快速进入检索工作流。
+
+## 主要组件
+
+### 1. 推理（Inference）
+
+- 方式：
+  - 云 API（使用腾讯云 SDK，便捷上线）
+  - 本地自托管（transformers 原生或 sentence-transformers）
+- 脚本与示例：
+  - `test_transformers_online_cuda.py`（CUDA）
+  - `test_transformers_online_macos.py`（macOS MPS/CPU）
+  - `test_transformers_local.py`（本地模型目录）
+  - `usage/infer_llm_embedding.py`（自定义封装类 LLMEmbeddingModel）
+  - `usage/langchain_embedding.py`（LangChain 集成）
+  - `usage/llamaindex_embedding.py`（LlamaIndex 集成）
+
+访问[代码仓库](https://github.com/TencentCloudADP/youtu-embedding)，获取脚本示例文件。
+
+### 2. 训练（Training）
+
+- 位置：`training/CoDiEmb`
+- 特点：
+  - 统一数据结构，覆盖 IR / STS / 分类 / 重排序
+  - 任务差异化损失（如 IR 的 InfoNCE、多正例与难负例；STS 的排序感知优化）
+  - 动态单任务采样，保证纯净稳定的梯度信号
+- 评估：详见 `evaluation/` 目录，[访问地址](https://github.com/TencentCloudADP/youtu-embedding/tree/main/evaluation)。
+
+## 使用方式
+
+### 1) 云 API
+
+- 使用腾讯云 SDK 与文档进行鉴权与调用
+- 适合快速上线与企业合规
+- [使用地址](https://cloud.tencent.com/document/product/1772/115343)
+
+### 2) 本地/私有化部署
+
+- 直接加载 Hugging Face 模型或本地目录
+- 适合数据隐私敏感或需深度定制的场景
+
+详细说明请参考[快速开始](/docs/zh/quick-start)。
+
+## 目录与架构概览
+
+| 目录/组件 | 描述 |
+| :-- | :-- |
+| usage | 推理与生态集成示例（API / LangChain / LlamaIndex 等） |
+| training | 协同-判别式微调训练框架与脚本 |
+| evaluation | 复现评测与结果 |
+| youtu-model / Youtu-Embedding | 本地模型目录（从 Hugging Face 拉取或克隆） |
+| test_transformers_*.py | 预置测试脚本，便于不同运行环境快速验证 |
+
+## 下一步
+
+熟悉基本能力后，前往[「快速开始」](/docs/zh/quick-start)以本地或云端方式完成推理与集成。
+
+相关链接：
+
+<div className="space-y-3">
+  <div className="flex items-center gap-3">
+    <span className="w-6 h-6 bg-gray-200 rounded flex items-center justify-center">G</span>
+    <a href="https://github.com/TencentCloudADP/youtu-embedding" className="hover:underline">
+      GitHub 仓库
+    </a>
+  </div>
+  <div className="flex items-center gap-3">
+    <span className="w-6 h-6 bg-yellow-200 rounded flex items-center justify-center">H</span>
+    <a href="https://huggingface.co/tencent/Youtu-Embedding" className="hover:underline">
+      Hugging Face 模型
+    </a>
+  </div>
+  <div className="flex items-center gap-3">
+    <span className="w-6 h-6 bg-red-200 rounded flex items-center justify-center">P</span>
+    <a href="https://arxiv.org/abs/2508.11442" className="hover:underline">
+      学术论文
+    </a>
+  </div>
+</div>
