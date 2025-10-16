@@ -59,7 +59,7 @@
   "redirects": [
     {
       "source": "/docs",
-      "destination": "/docs/zh",
+      "destination": "/docs/en",
       "permanent": false
     }
   ]
