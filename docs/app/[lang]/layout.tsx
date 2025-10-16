@@ -73,8 +73,8 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
     description,
     keywords,
     icons: {
-      icon: '/images/favicon.png',
-      apple: '/images/favicon.png',
+      icon: '/images/youtu-logo.svg',
+      apple: '/images/youtu-logo.svg',
     },
     openGraph: {
       title,

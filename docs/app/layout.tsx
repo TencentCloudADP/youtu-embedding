@@ -11,18 +11,18 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'ADP Chat Client - 学习和分享腾讯云智能体平台最佳实践',
-  description: 'ADP-Chat-Client是一个开源的AI智能体应用对话端。可以将腾讯云智能体开发平台（Tencent Cloud ADP） 开发的AI智能体应用快速部署为Web应用（或嵌入到小程序、Android、iOS 应用中）。',
+  title: 'Youtu-Embedding - 腾讯优图文本表示模型文档',
+  description: 'Youtu-Embedding是腾讯优图实验室开源的通用文本表示模型，支持信息检索、语义相似度、聚类、重排序与分类等多种自然语言处理任务。',
   icons: {
-    icon: '/images/favicon.png',
-    apple: '/images/favicon.png',
+    icon: '/images/youtu-logo.svg',
+    apple: '/images/youtu-logo.svg',
   },
   openGraph: {
-    title: 'ADP Chat Client - 学习和分享腾讯云智能体平台最佳实践',
-    description: 'ADP-Chat-Client是一个开源的AI智能体应用对话端。可以将腾讯云智能体开发平台（Tencent Cloud ADP） 开发的AI智能体应用快速部署为Web应用（或嵌入到小程序、Android、iOS 应用中）。',
+    title: 'Youtu-Embedding - 腾讯优图文本表示模型文档',
+    description: 'Youtu-Embedding是腾讯优图实验室开源的通用文本表示模型，支持信息检索、语义相似度、聚类、重排序与分类等多种自然语言处理任务。',
     images: [
       {
-        url: '/images/hello-adp.png',
+        url: '/images/youtu-logo.svg',
         width: 1200,
         height: 630,
         alt: 'Hello ADP Logo',

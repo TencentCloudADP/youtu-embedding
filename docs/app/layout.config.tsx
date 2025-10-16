@@ -17,8 +17,8 @@ export function baseOptions(locale: string): BaseLayoutProps {
       title: (
         <>
           <Image
-            src={getAssetPath("/images/adp-icon-transparent.png")}
-            alt="ADP-Chat-Client"
+            src={getAssetPath("/images/youtu-logo.svg")}
+            alt="Youtu-Embedding"
             width={100}
             height={50}
           />
